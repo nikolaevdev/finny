@@ -26,9 +26,10 @@ class GameState {
     this.ownedItemIds = const [],
     this.petCare = 60,
     this.petMood = 60,
+    this.completedTaskIds = const [],
   });
 
-  static const schemaVersion = 2;
+  static const schemaVersion = 3;
   static const defaultPeriodIncome = 120;
   static const defaultPeriodIncomeSource = 'Карманные монеты на период';
   static const requiredPeriods = 5;
@@ -48,6 +49,7 @@ class GameState {
   final List<String> ownedItemIds;
   final int petCare;
   final int petMood;
+  final List<String> completedTaskIds;
 
   bool get periodStarted => periodStatus != PeriodStatus.notStarted;
   bool get budgetConfirmed => periodStatus == PeriodStatus.planned;
@@ -65,6 +67,13 @@ class GameState {
   bool get goalReached => remainingToGoal == 0;
 
   bool ownsItem(String itemId) => ownedItemIds.contains(itemId);
+
+  bool hasCompletedTask(String taskId) => completedTaskIds.contains(taskId);
+
+  GameState completeTask(String taskId) {
+    if (taskId.isEmpty || completedTaskIds.contains(taskId)) return this;
+    return copyWith(completedTaskIds: [...completedTaskIds, taskId]);
+  }
 
   bool canPurchase(ShopItem item) {
     if (!budgetConfirmed) return false;
@@ -153,6 +162,7 @@ class GameState {
     List<String>? ownedItemIds,
     int? petCare,
     int? petMood,
+    List<String>? completedTaskIds,
   }) {
     return GameState(
       balance: balance ?? this.balance,
@@ -170,6 +180,7 @@ class GameState {
       ownedItemIds: ownedItemIds ?? this.ownedItemIds,
       petCare: petCare ?? this.petCare,
       petMood: petMood ?? this.petMood,
+      completedTaskIds: completedTaskIds ?? this.completedTaskIds,
     );
   }
 
@@ -190,6 +201,7 @@ class GameState {
         'ownedItemIds': ownedItemIds,
         'petCare': petCare,
         'petMood': petMood,
+        'completedTaskIds': completedTaskIds,
       };
 
   factory GameState.fromJson(Map<String, Object?> json) {
@@ -248,6 +260,16 @@ class GameState {
       }
     }
 
+    final completedTaskIds = <String>[];
+    final rawCompletedTaskIds = json['completedTaskIds'];
+    if (rawCompletedTaskIds is List) {
+      for (final value in rawCompletedTaskIds) {
+        if (value is String && value.isNotEmpty && !completedTaskIds.contains(value)) {
+          completedTaskIds.add(value);
+        }
+      }
+    }
+
     final startBalance = json['periodStartBalance'];
 
     return GameState(
@@ -276,6 +298,7 @@ class GameState {
       ownedItemIds: ownedItemIds,
       petCare: safePercent(json['petCare']),
       petMood: safePercent(json['petMood']),
+      completedTaskIds: completedTaskIds,
     );
   }
 }

@@ -39,6 +39,7 @@ void main() {
       ownedItemIds: ['bandana'],
       petCare: 70,
       petMood: 60,
+      completedTaskIds: ['budget_weekend'],
     );
 
     await repository.save(state);
@@ -56,6 +57,7 @@ void main() {
     expect(restored.purchases.single.itemId, 'food_set');
     expect(restored.ownsItem('bandana'), isTrue);
     expect(restored.petCare, 70);
+    expect(restored.completedTaskIds, ['budget_weekend']);
   });
 
   test('stage 3 state migrates to current schema', () {
@@ -84,7 +86,7 @@ void main() {
     expect(state.petMood, 60);
   });
 
-  test('stage 4 state keeps savings data in stage 5', () {
+  test('stage 5 state migrates to stage 6 with empty task progress', () {
     final state = GameState.fromJson({
       'schemaVersion': 2,
       'balance': 65,
@@ -117,6 +119,7 @@ void main() {
     expect(state.selectedGoal, GameGoal.treeHouse);
     expect(state.budgetActuals.saved, 20);
     expect(state.remainingToGoal, 205);
+    expect(state.completedTaskIds, isEmpty);
   });
 
   test('demo mode initial state starts with goal progress', () {
