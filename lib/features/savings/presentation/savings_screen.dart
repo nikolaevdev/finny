@@ -233,6 +233,28 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
                       const SizedBox(height: AppSpacing.md),
                     ],
                     const SizedBox(height: AppSpacing.sm),
+                    if (game.allPeriodsCompleted) ...[
+                      Container(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: AppColors.save.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(AppRadius.medium),
+                        ),
+                        child: const Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(Icons.savings_outlined, color: AppColors.save),
+                            SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: Text(
+                                'Все 5 периодов завершены. Оставшиеся монеты можно свободно перевести в накопления или вернуть на баланс – история завершённых периодов при этом не изменится.',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                    ],
                     _DepositCard(
                       game: game,
                       amount: _effectiveAmount(
@@ -241,8 +263,7 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
                       ),
                       enabled: !_isWorking &&
                           game.balance > 0 &&
-                          game.periodStatus != PeriodStatus.planning &&
-                              game.periodStatus != PeriodStatus.completed,
+                          game.canManageSavings,
                       onDecrease: () => _changeDeposit(-_step, game.balance),
                       onIncrease: () => _changeDeposit(_step, game.balance),
                       onAll: () => setState(() {
@@ -259,8 +280,7 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
                       ),
                       enabled: !_isWorking &&
                           game.savings > 0 &&
-                          game.periodStatus != PeriodStatus.planning &&
-                              game.periodStatus != PeriodStatus.completed,
+                          game.canManageSavings,
                       onDecrease: () =>
                           _changeWithdrawal(-_step, game.savings),
                       onIncrease: () =>

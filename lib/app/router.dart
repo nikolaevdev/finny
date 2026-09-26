@@ -1,5 +1,7 @@
 import 'package:go_router/go_router.dart';
 
+import '../features/adult/presentation/adult_access_screen.dart';
+import '../features/adult/presentation/adult_screen.dart';
 import '../features/budget/presentation/budget_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
@@ -15,6 +17,8 @@ import '../features/tasks/presentation/tasks_screen.dart';
 
 abstract final class AppRoutes {
   static const onboarding = '/onboarding';
+  static const adultAccess = '/adult-access';
+  static const adult = '/adult';
   static const profile = '/profile';
   static const pet = '/pet';
   static const home = '/home';
@@ -38,6 +42,14 @@ GoRouter createAppRouter({required bool hasLocalProfile}) {
       GoRoute(
         path: AppRoutes.onboarding,
         builder: (context, state) => const OnboardingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adultAccess,
+        builder: (context, state) => const AdultAccessScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adult,
+        builder: (context, state) => const AdultScreen(),
       ),
       GoRoute(
         path: AppRoutes.profile,
