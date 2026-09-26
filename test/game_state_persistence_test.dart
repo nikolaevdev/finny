@@ -4,6 +4,7 @@ import 'package:finny/features/game/domain/budget_plan.dart';
 import 'package:finny/features/game/domain/game_goal.dart';
 import 'package:finny/features/game/domain/game_state.dart';
 import 'package:finny/features/game/domain/period_summary.dart';
+import 'package:finny/features/game/domain/pet_progress.dart';
 import 'package:finny/features/shop/domain/purchase_record.dart';
 import 'package:finny/features/shop/domain/shop_item.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -158,6 +159,49 @@ void main() {
     expect(state.completedTaskIds, ['budget_weekend']);
     expect(state.periodHistory, isEmpty);
     expect(state.periodStatus, PeriodStatus.planned);
+  });
+
+
+  test('stage 7 state keeps history and derives development without migration', () {
+    final state = GameState.fromJson({
+      'schemaVersion': 4,
+      'balance': 80,
+      'savings': 60,
+      'selectedGoal': 'explorer_corner',
+      'currentPeriod': 3,
+      'totalPeriods': 5,
+      'periodStatus': 'notStarted',
+      'petCare': 75,
+      'petMood': 68,
+      'periodHistory': [
+        {
+          'period': 1,
+          'startBalance': 120,
+          'endBalance': 60,
+          'savingsAfter': 20,
+          'plan': {'need': 40, 'want': 20, 'save': 20},
+          'actuals': {'needSpent': 30, 'wantSpent': 10, 'saved': 20},
+          'purchaseCount': 2,
+          'petCareAfter': 70,
+          'petMoodAfter': 65,
+        },
+        {
+          'period': 2,
+          'startBalance': 180,
+          'endBalance': 80,
+          'savingsAfter': 60,
+          'plan': {'need': 50, 'want': 20, 'save': 30},
+          'actuals': {'needSpent': 30, 'wantSpent': 15, 'saved': 30},
+          'purchaseCount': 2,
+          'petCareAfter': 75,
+          'petMoodAfter': 68,
+        },
+      ],
+    });
+
+    expect(state.periodHistory, hasLength(2));
+    expect(state.petMood, 68);
+    expect(state.developmentStage, PetDevelopmentStage.growing);
   });
 
   test('demo mode initial state starts with goal progress', () {

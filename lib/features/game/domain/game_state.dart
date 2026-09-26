@@ -6,6 +6,7 @@ import 'budget_actuals.dart';
 import 'budget_plan.dart';
 import 'game_goal.dart';
 import 'period_summary.dart';
+import 'pet_progress.dart';
 
 enum PeriodStatus { notStarted, planning, planned, completed }
 
@@ -62,6 +63,13 @@ class GameState {
 
   PeriodSummary? get lastPeriodSummary =>
       periodHistory.isEmpty ? null : periodHistory.last;
+
+  PetMoodLevel get moodLevel => moodLevelFor(petMood);
+
+  PetDevelopmentProgress get developmentProgress =>
+      PetDevelopmentProgress.fromHistory(periodHistory);
+
+  PetDevelopmentStage get developmentStage => developmentProgress.stage;
 
   int get planningBudget => periodStartBalance ?? balance;
 
@@ -144,7 +152,7 @@ class GameState {
     );
   }
 
-  PeriodSummary buildCurrentPeriodSummary() {
+  PeriodSummary buildCurrentPeriodSummary({int? moodAfter}) {
     return PeriodSummary(
       period: currentPeriod,
       startBalance: periodStartBalance ?? balance,
@@ -154,20 +162,68 @@ class GameState {
       actuals: budgetActuals,
       purchaseCount: purchases.length,
       petCareAfter: petCare,
-      petMoodAfter: petMood,
+      petMoodAfter: moodAfter ?? petMood,
     );
+  }
+
+  int get periodMoodDelta {
+    var delta = 0;
+
+    if (budgetActuals.needSpent > 0) {
+      delta += 3;
+    } else if (budgetPlan.need > 0) {
+      delta -= 5;
+    }
+
+    if (budgetActuals.saved > 0) {
+      delta += 2;
+    } else if (budgetPlan.save > 0) {
+      delta -= 2;
+    }
+
+    if (budgetActuals.wantSpent > budgetPlan.want) {
+      delta -= 3;
+    }
+
+    return delta;
+  }
+
+  String get periodMoodReason {
+    final parts = <String>[];
+    if (budgetActuals.needSpent > 0) {
+      parts.add('ты позаботился о нужных вещах');
+    } else if (budgetPlan.need > 0) {
+      parts.add('на нужные вещи пока ничего не потрачено');
+    }
+
+    if (budgetActuals.saved > 0) {
+      parts.add('часть монет удалось сохранить');
+    } else if (budgetPlan.save > 0) {
+      parts.add('накопления в этом периоде не пополнились');
+    }
+
+    if (budgetActuals.wantSpent > budgetPlan.want) {
+      parts.add('на желания ушло больше, чем было в плане');
+    }
+
+    if (parts.isEmpty) {
+      return 'Настроение осталось почти прежним: решения периода были спокойными.';
+    }
+    return 'Настроение изменилось: ${parts.join(', ')}.';
   }
 
   GameState completeCurrentPeriod() {
     if (periodStatus != PeriodStatus.planned) return this;
 
-    final summary = buildCurrentPeriodSummary();
+    final nextMood = (petMood + periodMoodDelta).clamp(0, 100).toInt();
+    final summary = buildCurrentPeriodSummary(moodAfter: nextMood);
     final withoutSamePeriod = periodHistory
         .where((item) => item.period != currentPeriod)
         .toList(growable: false);
 
     return copyWith(
       periodStatus: PeriodStatus.completed,
+      petMood: nextMood,
       periodHistory: [...withoutSamePeriod, summary],
     );
   }
