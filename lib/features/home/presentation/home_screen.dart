@@ -204,9 +204,10 @@ class HomeScreen extends ConsumerWidget {
                         ),
                         _ActionTile(
                           title: 'Задания',
+                          subtitle: '${game.completedTaskIds.length}/6 пройдено',
                           icon: Icons.explore_outlined,
                           color: AppColors.need,
-                          onTap: () => _showStageMessage(context, 'Задания'),
+                          onTap: () => context.push(AppRoutes.tasks),
                         ),
                         _ActionTile(
                           title: 'Цель',

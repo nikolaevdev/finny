@@ -169,6 +169,17 @@ class GameStateNotifier extends Notifier<GameState?> {
     return SavingsTransferResult.success;
   }
 
+  Future<bool> completeTask(String taskId) async {
+    final current = state;
+    if (current == null || taskId.isEmpty) return false;
+
+    final next = current.completeTask(taskId);
+    if (identical(next, current)) return false;
+
+    await _save(next);
+    return true;
+  }
+
   Future<void> resetForProfile({required bool demoMode}) async {
     await createForProfile(demoMode: demoMode);
   }
