@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
 
+import '../../shop/domain/purchase_record.dart';
+import '../../shop/domain/shop_item.dart';
+import 'budget_actuals.dart';
 import 'budget_plan.dart';
 import 'game_goal.dart';
 
@@ -18,9 +21,14 @@ class GameState {
     this.periodIncomeSource,
     this.periodStartBalance,
     this.budgetPlan = const BudgetPlan(),
+    this.budgetActuals = const BudgetActuals(),
+    this.purchases = const [],
+    this.ownedItemIds = const [],
+    this.petCare = 60,
+    this.petMood = 60,
   });
 
-  static const schemaVersion = 1;
+  static const schemaVersion = 2;
   static const defaultPeriodIncome = 120;
   static const defaultPeriodIncomeSource = 'Карманные монеты на период';
   static const requiredPeriods = 5;
@@ -35,6 +43,11 @@ class GameState {
   final String? periodIncomeSource;
   final int? periodStartBalance;
   final BudgetPlan budgetPlan;
+  final BudgetActuals budgetActuals;
+  final List<PurchaseRecord> purchases;
+  final List<String> ownedItemIds;
+  final int petCare;
+  final int petMood;
 
   bool get periodStarted => periodStatus != PeriodStatus.notStarted;
   bool get budgetConfirmed => periodStatus == PeriodStatus.planned;
@@ -44,6 +57,37 @@ class GameState {
   double get goalProgress {
     if (selectedGoal.cost <= 0) return 0;
     return (savings / selectedGoal.cost).clamp(0.0, 1.0).toDouble();
+  }
+
+  bool ownsItem(String itemId) => ownedItemIds.contains(itemId);
+
+  bool canPurchase(ShopItem item) {
+    if (!budgetConfirmed) return false;
+    if (balance < item.price) return false;
+    if (!item.repeatable && ownsItem(item.id)) return false;
+    return true;
+  }
+
+  GameState purchase(ShopItem item) {
+    if (!canPurchase(item)) return this;
+
+    final record = PurchaseRecord(
+      itemId: item.id,
+      title: item.title,
+      price: item.price,
+      category: item.category,
+    );
+
+    return copyWith(
+      balance: balance - item.price,
+      budgetActuals: budgetActuals.addPurchase(item),
+      purchases: [...purchases, record],
+      ownedItemIds: item.repeatable || ownedItemIds.contains(item.id)
+          ? ownedItemIds
+          : [...ownedItemIds, item.id],
+      petCare: (petCare + item.careDelta).clamp(0, 100).toInt(),
+      petMood: (petMood + item.moodDelta).clamp(0, 100).toInt(),
+    );
   }
 
   factory GameState.initial({required bool demoMode}) {
@@ -68,6 +112,11 @@ class GameState {
     String? periodIncomeSource,
     int? periodStartBalance,
     BudgetPlan? budgetPlan,
+    BudgetActuals? budgetActuals,
+    List<PurchaseRecord>? purchases,
+    List<String>? ownedItemIds,
+    int? petCare,
+    int? petMood,
   }) {
     return GameState(
       balance: balance ?? this.balance,
@@ -80,6 +129,11 @@ class GameState {
       periodIncomeSource: periodIncomeSource ?? this.periodIncomeSource,
       periodStartBalance: periodStartBalance ?? this.periodStartBalance,
       budgetPlan: budgetPlan ?? this.budgetPlan,
+      budgetActuals: budgetActuals ?? this.budgetActuals,
+      purchases: purchases ?? this.purchases,
+      ownedItemIds: ownedItemIds ?? this.ownedItemIds,
+      petCare: petCare ?? this.petCare,
+      petMood: petMood ?? this.petMood,
     );
   }
 
@@ -95,17 +149,28 @@ class GameState {
         'periodIncomeSource': periodIncomeSource,
         'periodStartBalance': periodStartBalance,
         'budgetPlan': budgetPlan.toJson(),
+        'budgetActuals': budgetActuals.toJson(),
+        'purchases': purchases.map((purchase) => purchase.toJson()).toList(),
+        'ownedItemIds': ownedItemIds,
+        'petCare': petCare,
+        'petMood': petMood,
       };
 
   factory GameState.fromJson(Map<String, Object?> json) {
-    final version = json['schemaVersion'];
-    if (version is! num || version.toInt() != schemaVersion) {
+    final versionValue = json['schemaVersion'];
+    final version = versionValue is num ? versionValue.toInt() : 1;
+    if (version < 1 || version > schemaVersion) {
       throw const FormatException('Unsupported game state version');
     }
 
     int safeNonNegative(Object? value, {int fallback = 0}) {
       final number = value is num ? value.toInt() : fallback;
       return number < 0 ? fallback : number;
+    }
+
+    int safePercent(Object? value, {int fallback = 60}) {
+      final number = value is num ? value.toInt() : fallback;
+      return number.clamp(0, 100).toInt();
     }
 
     final rawStatus = json['periodStatus'];
@@ -117,6 +182,35 @@ class GameState {
     final plan = rawPlan is Map
         ? BudgetPlan.fromJson(Map<String, Object?>.from(rawPlan))
         : const BudgetPlan();
+
+    final rawActuals = json['budgetActuals'];
+    final actuals = rawActuals is Map
+        ? BudgetActuals.fromJson(Map<String, Object?>.from(rawActuals))
+        : const BudgetActuals();
+
+    final purchases = <PurchaseRecord>[];
+    final rawPurchases = json['purchases'];
+    if (rawPurchases is List) {
+      for (final rawPurchase in rawPurchases) {
+        if (rawPurchase is Map) {
+          purchases.add(
+            PurchaseRecord.fromJson(
+              Map<String, Object?>.from(rawPurchase),
+            ),
+          );
+        }
+      }
+    }
+
+    final ownedItemIds = <String>[];
+    final rawOwnedItemIds = json['ownedItemIds'];
+    if (rawOwnedItemIds is List) {
+      for (final value in rawOwnedItemIds) {
+        if (value is String && value.isNotEmpty) {
+          ownedItemIds.add(value);
+        }
+      }
+    }
 
     final startBalance = json['periodStartBalance'];
 
@@ -141,6 +235,11 @@ class GameState {
           ? startBalance.toInt()
           : null,
       budgetPlan: plan,
+      budgetActuals: actuals,
+      purchases: purchases,
+      ownedItemIds: ownedItemIds,
+      petCare: safePercent(json['petCare']),
+      petMood: safePercent(json['petMood']),
     );
   }
 }

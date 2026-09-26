@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../shop/domain/shop_item.dart';
+import '../domain/budget_actuals.dart';
 import '../domain/budget_plan.dart';
 import '../domain/game_state.dart';
 import '../domain/game_state_repository.dart';
@@ -9,6 +11,13 @@ final gameStateRepositoryProvider = Provider<GameStateRepository>((ref) {
 });
 
 final initialGameStateProvider = Provider<GameState?>((ref) => null);
+
+enum PurchaseResult {
+  success,
+  periodNotReady,
+  insufficientFunds,
+  alreadyPurchased,
+}
 
 class GameStateNotifier extends Notifier<GameState?> {
   @override
@@ -35,6 +44,8 @@ class GameStateNotifier extends Notifier<GameState?> {
       periodIncomeSource: GameState.defaultPeriodIncomeSource,
       periodStartBalance: newBalance,
       budgetPlan: const BudgetPlan(),
+      budgetActuals: const BudgetActuals(),
+      purchases: const [],
     );
 
     await _save(next);
@@ -73,6 +84,27 @@ class GameStateNotifier extends Notifier<GameState?> {
       current.copyWith(periodStatus: PeriodStatus.planned),
     );
     return true;
+  }
+
+  Future<PurchaseResult> purchase(ShopItem item) async {
+    final current = state;
+    if (current == null || !current.budgetConfirmed) {
+      return PurchaseResult.periodNotReady;
+    }
+    if (!item.repeatable && current.ownsItem(item.id)) {
+      return PurchaseResult.alreadyPurchased;
+    }
+    if (current.balance < item.price) {
+      return PurchaseResult.insufficientFunds;
+    }
+
+    final next = current.purchase(item);
+    if (identical(next, current)) {
+      return PurchaseResult.insufficientFunds;
+    }
+
+    await _save(next);
+    return PurchaseResult.success;
   }
 
   Future<void> resetForProfile({required bool demoMode}) async {
