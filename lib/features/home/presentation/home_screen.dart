@@ -11,6 +11,7 @@ import '../../../core/widgets/finni_card.dart';
 import '../../../core/widgets/finni_preview.dart';
 import '../../game/application/game_state_provider.dart';
 import '../../game/domain/game_state.dart';
+import '../../game/domain/pet_progress.dart';
 import '../../profile/application/local_profile_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -132,6 +133,8 @@ class HomeScreen extends ConsumerWidget {
                             earsIndex: appearance.earsIndex,
                             patternIndex: appearance.patternIndex,
                             label: profile.pet.name,
+                            mood: game.petMood,
+                            developmentStage: game.developmentStage.index,
                           ),
                           const SizedBox(height: AppSpacing.md),
                           Container(
@@ -164,19 +167,23 @@ class HomeScreen extends ConsumerWidget {
                             icon: Icons.favorite_rounded,
                             color: AppColors.need,
                             value: game.petCare / 100,
+                            valueLabel: '${game.petCare}/100',
                           ),
                         ),
                         const SizedBox(width: AppSpacing.md),
                         Expanded(
                           child: _PetStat(
                             title: 'Настроение',
-                            icon: Icons.sentiment_satisfied_alt_rounded,
+                            icon: _moodIcon(game.moodLevel),
                             color: AppColors.want,
                             value: game.petMood / 100,
+                            valueLabel: game.moodLevel.title,
                           ),
                         ),
                       ],
                     ),
+                    const SizedBox(height: AppSpacing.md),
+                    _DevelopmentCard(game: game),
                     const SizedBox(height: AppSpacing.xl),
                     GridView.count(
                       crossAxisCount: 2,
@@ -294,6 +301,17 @@ class HomeScreen extends ConsumerWidget {
   }
 
   String _finniMessage(GameState game) {
+    if (game.periodStatus == PeriodStatus.planned &&
+        (game.purchases.isNotEmpty || game.budgetActuals.saved > 0)) {
+      final reaction = switch (game.moodLevel) {
+        PetMoodLevel.quiet => 'Я немного загрустил, но это легко исправить.',
+        PetMoodLevel.calm => 'У меня спокойное настроение.',
+        PetMoodLevel.happy => 'Я доволен нашими решениями!',
+        PetMoodLevel.delighted => 'Я очень рад нашим решениям!',
+      };
+      return '$reaction Когда закончишь, сравним план с фактом.';
+    }
+
     return switch (game.periodStatus) {
       PeriodStatus.notStarted =>
         'Начнём новый период и решим, как распорядиться монетами?',
@@ -302,10 +320,17 @@ class HomeScreen extends ConsumerWidget {
       PeriodStatus.planned =>
         'План готов! Когда закончишь с решениями, сравним план с фактом.',
       PeriodStatus.completed => game.allPeriodsCompleted
-          ? 'Все пять периодов пройдены. Можно посмотреть итог последнего периода.'
-          : 'Период завершён. Посмотрим итог и перейдём к следующему?',
+          ? '${game.moodLevel.title}. Все пять периодов пройдены – посмотрим, как я вырос.'
+          : '${game.moodLevel.title}. Период завершён – посмотрим итог и мой рост?',
     };
   }
+
+  IconData _moodIcon(PetMoodLevel mood) => switch (mood) {
+        PetMoodLevel.quiet => Icons.sentiment_dissatisfied_rounded,
+        PetMoodLevel.calm => Icons.sentiment_neutral_rounded,
+        PetMoodLevel.happy => Icons.sentiment_satisfied_alt_rounded,
+        PetMoodLevel.delighted => Icons.sentiment_very_satisfied_rounded,
+      };
 
   String _planSubtitle(GameState game) {
     return switch (game.periodStatus) {
@@ -508,18 +533,76 @@ class _PeriodStatusCard extends StatelessWidget {
   }
 }
 
+class _DevelopmentCard extends StatelessWidget {
+  const _DevelopmentCard({required this.game});
+
+  final GameState game;
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = game.developmentProgress;
+    final stage = progress.stage;
+
+    return FinniCard(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Row(
+        children: [
+          Container(
+            width: 46,
+            height: 46,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.purple.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              '${stage.index + 1}',
+              style: const TextStyle(
+                color: AppColors.purple,
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Рост: ${stage.title}',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  stage.shortReason,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _PetStat extends StatelessWidget {
   const _PetStat({
     required this.title,
     required this.icon,
     required this.color,
     required this.value,
+    required this.valueLabel,
   });
 
   final String title;
   final IconData icon;
   final Color color;
   final double value;
+  final String valueLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -533,16 +616,23 @@ class _PetStat extends StatelessWidget {
               Icon(icon, color: color, size: 22),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.labelLarge,
-                  ),
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.labelLarge,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            valueLabel,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w700,
+                ),
           ),
           const SizedBox(height: AppSpacing.sm),
           ClipRRect(

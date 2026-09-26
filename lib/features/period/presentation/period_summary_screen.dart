@@ -11,6 +11,7 @@ import '../../../core/widgets/finni_card.dart';
 import '../../game/application/game_state_provider.dart';
 import '../../game/domain/game_state.dart';
 import '../../game/domain/period_summary.dart';
+import '../../game/domain/pet_progress.dart';
 
 class PeriodSummaryScreen extends ConsumerStatefulWidget {
   const PeriodSummaryScreen({super.key});
@@ -272,7 +273,7 @@ class _CompletedPeriod extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         _BalanceCard(summary: summary),
         const SizedBox(height: AppSpacing.lg),
-        _PetStateCard(summary: summary),
+        _PetStateCard(game: game),
         const SizedBox(height: AppSpacing.xxl),
         if (!game.allPeriodsCompleted)
           FinniButton(
@@ -480,17 +481,29 @@ class _BalanceCard extends StatelessWidget {
 }
 
 class _PetStateCard extends StatelessWidget {
-  const _PetStateCard({required this.summary});
+  const _PetStateCard({required this.game});
 
-  final PeriodSummary summary;
+  final GameState game;
 
   @override
   Widget build(BuildContext context) {
+    final summary = game.lastPeriodSummary!;
+    final progress = game.developmentProgress;
+    final previousHistory = game.periodHistory.length <= 1
+        ? const <PeriodSummary>[]
+        : game.periodHistory.sublist(0, game.periodHistory.length - 1);
+    final previousStage =
+        PetDevelopmentProgress.fromHistory(previousHistory).stage;
+    final grewThisPeriod = previousStage != progress.stage;
+
     return FinniCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Финни после периода', style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            'Финни после периода',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: AppSpacing.md),
           _ProgressLine(
             label: 'Забота',
@@ -505,7 +518,34 @@ class _PetStateCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Покупок за период: ${summary.purchaseCount}. Состояние Финни меняется после конкретных решений в магазине.',
+            '${game.moodLevel.title}. ${game.periodMoodReason}',
+            style: const TextStyle(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: AppColors.purple.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(AppRadius.medium),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  grewThisPeriod
+                      ? 'Финни подрос! Стадия ${progress.stage.index + 1} из 3'
+                      : 'Рост: ${progress.stage.title} · стадия ${progress.stage.index + 1} из 3',
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(progress.stage.shortReason),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Покупок за период: ${summary.purchaseCount}. Рост зависит не от одной покупки, а от решений за несколько периодов.',
             style: const TextStyle(color: AppColors.textSecondary),
           ),
         ],
