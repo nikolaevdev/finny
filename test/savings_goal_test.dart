@@ -90,4 +90,45 @@ void main() {
     expect(state.remainingToGoal, 0);
     expect(state.goalReached, isTrue);
   });
+
+  test('savings stay manageable after the fifth and final period', () {
+    const state = GameState(
+      balance: 435,
+      savings: 130,
+      selectedGoal: GameGoal.explorerCorner,
+      currentPeriod: 5,
+      totalPeriods: 5,
+      periodStatus: PeriodStatus.completed,
+      budgetPlan: BudgetPlan(need: 80, want: 20, save: 20),
+      budgetActuals: BudgetActuals(needSpent: 80, wantSpent: 0, saved: 20),
+    );
+
+    final deposited = state.depositToSavings(50);
+
+    expect(state.allPeriodsCompleted, isTrue);
+    expect(state.canManageSavings, isTrue);
+    expect(deposited.balance, 385);
+    expect(deposited.savings, 180);
+    expect(deposited.budgetActuals.saved, 20);
+
+    final withdrawn = deposited.withdrawFromSavings(30);
+    expect(withdrawn.balance, 415);
+    expect(withdrawn.savings, 150);
+    expect(withdrawn.budgetActuals.saved, 20);
+  });
+
+  test('savings stay locked after a completed non-final period', () {
+    const state = GameState(
+      balance: 100,
+      savings: 40,
+      selectedGoal: GameGoal.explorerCorner,
+      currentPeriod: 3,
+      totalPeriods: 5,
+      periodStatus: PeriodStatus.completed,
+    );
+
+    expect(state.canManageSavings, isFalse);
+    expect(identical(state.depositToSavings(10), state), isTrue);
+    expect(identical(state.withdrawFromSavings(10), state), isTrue);
+  });
 }

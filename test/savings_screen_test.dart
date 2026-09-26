@@ -106,4 +106,44 @@ void main() {
     expect(repository.state!.savings, 40);
     expect(find.text('Стоимость: 260 монет'), findsOneWidget);
   });
+  testWidgets('final period balance can still be moved to savings', (
+    tester,
+  ) async {
+    const initial = GameState(
+      balance: 435,
+      savings: 130,
+      selectedGoal: GameGoal.explorerCorner,
+      currentPeriod: 5,
+      totalPeriods: 5,
+      periodStatus: PeriodStatus.completed,
+      budgetPlan: BudgetPlan(need: 80, want: 20, save: 20),
+      budgetActuals: BudgetActuals(needSpent: 80, saved: 20),
+    );
+    final repository = _FakeGameStateRepository(initial);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          gameStateRepositoryProvider.overrideWithValue(repository),
+          initialGameStateProvider.overrideWithValue(initial),
+        ],
+        child: const MaterialApp(home: SavingsScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.textContaining('Все 5 периодов завершены'),
+      findsOneWidget,
+    );
+
+    await tester.ensureVisible(find.text('Перевести 10 монет'));
+    await tester.tap(find.text('Перевести 10 монет'));
+    await tester.pumpAndSettle();
+
+    expect(repository.state!.balance, 425);
+    expect(repository.state!.savings, 140);
+    expect(repository.state!.budgetActuals.saved, 20);
+  });
+
 }

@@ -254,10 +254,7 @@ class HomeScreen extends ConsumerWidget {
                           child: _SecondaryAction(
                             title: 'Для взрослого',
                             icon: Icons.supervisor_account_outlined,
-                            onTap: () => _showStageMessage(
-                              context,
-                              'Раздел взрослого',
-                            ),
+                            onTap: () => context.push(AppRoutes.adultAccess),
                           ),
                         ),
                       ],
@@ -320,7 +317,7 @@ class HomeScreen extends ConsumerWidget {
       PeriodStatus.planned =>
         'План готов! Когда закончишь с решениями, сравним план с фактом.',
       PeriodStatus.completed => game.allPeriodsCompleted
-          ? '${game.moodLevel.title}. Все пять периодов пройдены – посмотрим, как я вырос.'
+          ? '${game.moodLevel.title}. Все пять периодов пройдены – оставшиеся монеты можно отправить к цели.'
           : '${game.moodLevel.title}. Период завершён – посмотрим итог и мой рост?',
     };
   }

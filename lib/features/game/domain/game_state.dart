@@ -61,6 +61,10 @@ class GameState {
   bool get allPeriodsCompleted =>
       currentPeriod >= totalPeriods && periodStatus == PeriodStatus.completed;
 
+  bool get canManageSavings =>
+      periodStatus != PeriodStatus.planning &&
+      (!periodCompleted || allPeriodsCompleted);
+
   PeriodSummary? get lastPeriodSummary =>
       periodHistory.isEmpty ? null : periodHistory.last;
 
@@ -128,7 +132,7 @@ class GameState {
 
   GameState depositToSavings(int amount) {
     if (amount <= 0 || amount > balance) return this;
-    if (periodStatus == PeriodStatus.planning || periodCompleted) return this;
+    if (!canManageSavings) return this;
 
     return copyWith(
       balance: balance - amount,
@@ -141,7 +145,7 @@ class GameState {
 
   GameState withdrawFromSavings(int amount) {
     if (amount <= 0 || amount > savings) return this;
-    if (periodStatus == PeriodStatus.planning || periodCompleted) return this;
+    if (!canManageSavings) return this;
 
     return copyWith(
       balance: balance + amount,

@@ -136,7 +136,8 @@ class GameStateNotifier extends Notifier<GameState?> {
     if (current.periodStatus == PeriodStatus.planning) {
       return SavingsTransferResult.planningInProgress;
     }
-    if (current.periodStatus == PeriodStatus.completed) {
+    if (current.periodStatus == PeriodStatus.completed &&
+        !current.allPeriodsCompleted) {
       return SavingsTransferResult.periodCompleted;
     }
     if (amount > current.balance) {
@@ -160,7 +161,8 @@ class GameStateNotifier extends Notifier<GameState?> {
     if (current.periodStatus == PeriodStatus.planning) {
       return SavingsTransferResult.planningInProgress;
     }
-    if (current.periodStatus == PeriodStatus.completed) {
+    if (current.periodStatus == PeriodStatus.completed &&
+        !current.allPeriodsCompleted) {
       return SavingsTransferResult.periodCompleted;
     }
     if (amount > current.savings) {
