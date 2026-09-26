@@ -5,6 +5,7 @@ import '../features/home/presentation/home_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/pet/presentation/pet_creation_screen.dart';
 import '../features/profile/presentation/profile_screen.dart';
+import '../features/savings/presentation/savings_screen.dart';
 import '../features/shop/presentation/shop_screen.dart';
 
 abstract final class AppRoutes {
@@ -14,6 +15,7 @@ abstract final class AppRoutes {
   static const home = '/home';
   static const budget = '/budget';
   static const shop = '/shop';
+  static const savings = '/savings';
 }
 
 GoRouter createAppRouter({required bool hasLocalProfile}) {
@@ -44,6 +46,10 @@ GoRouter createAppRouter({required bool hasLocalProfile}) {
       GoRoute(
         path: AppRoutes.shop,
         builder: (context, state) => const ShopScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.savings,
+        builder: (context, state) => const SavingsScreen(),
       ),
     ],
   );

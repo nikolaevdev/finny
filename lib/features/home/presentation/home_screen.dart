@@ -21,7 +21,7 @@ class HomeScreen extends ConsumerWidget {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text('$section будет реализован на следующем этапе.'),
+          content: Text('$section пока закрыт.'),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -118,6 +118,7 @@ class HomeScreen extends ConsumerWidget {
                       title: game.selectedGoal.title,
                       saved: game.savings,
                       goal: game.selectedGoal.cost,
+                      onTap: () => context.push(AppRoutes.savings),
                     ),
                     const SizedBox(height: AppSpacing.md),
                     _PeriodStatusCard(game: game),
@@ -212,7 +213,7 @@ class HomeScreen extends ConsumerWidget {
                           subtitle: '${game.savings}/${game.selectedGoal.cost}',
                           icon: Icons.track_changes_rounded,
                           color: AppColors.save,
-                          onTap: () => _showStageMessage(context, 'Цель'),
+                          onTap: () => context.push(AppRoutes.savings),
                         ),
                       ],
                     ),
@@ -369,11 +370,13 @@ class _GoalCard extends StatelessWidget {
     required this.title,
     required this.saved,
     required this.goal,
+    required this.onTap,
   });
 
   final String title;
   final int saved;
   final int goal;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -382,6 +385,7 @@ class _GoalCard extends StatelessWidget {
         : (saved / goal).clamp(0.0, 1.0).toDouble();
 
     return FinniCard(
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

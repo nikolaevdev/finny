@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../shop/domain/shop_item.dart';
 import '../domain/budget_actuals.dart';
 import '../domain/budget_plan.dart';
+import '../domain/game_goal.dart';
 import '../domain/game_state.dart';
 import '../domain/game_state_repository.dart';
 
@@ -17,6 +18,14 @@ enum PurchaseResult {
   periodNotReady,
   insufficientFunds,
   alreadyPurchased,
+}
+
+enum SavingsTransferResult {
+  success,
+  invalidAmount,
+  insufficientFunds,
+  insufficientSavings,
+  planningInProgress,
 }
 
 class GameStateNotifier extends Notifier<GameState?> {
@@ -105,6 +114,59 @@ class GameStateNotifier extends Notifier<GameState?> {
 
     await _save(next);
     return PurchaseResult.success;
+  }
+
+  Future<bool> selectGoal(GameGoal goal) async {
+    final current = state;
+    if (current == null) return false;
+
+    final next = current.selectGoal(goal);
+    if (identical(next, current)) return false;
+
+    await _save(next);
+    return true;
+  }
+
+  Future<SavingsTransferResult> depositToSavings(int amount) async {
+    final current = state;
+    if (current == null || amount <= 0) {
+      return SavingsTransferResult.invalidAmount;
+    }
+    if (current.periodStatus == PeriodStatus.planning) {
+      return SavingsTransferResult.planningInProgress;
+    }
+    if (amount > current.balance) {
+      return SavingsTransferResult.insufficientFunds;
+    }
+
+    final next = current.depositToSavings(amount);
+    if (identical(next, current)) {
+      return SavingsTransferResult.invalidAmount;
+    }
+
+    await _save(next);
+    return SavingsTransferResult.success;
+  }
+
+  Future<SavingsTransferResult> withdrawFromSavings(int amount) async {
+    final current = state;
+    if (current == null || amount <= 0) {
+      return SavingsTransferResult.invalidAmount;
+    }
+    if (current.periodStatus == PeriodStatus.planning) {
+      return SavingsTransferResult.planningInProgress;
+    }
+    if (amount > current.savings) {
+      return SavingsTransferResult.insufficientSavings;
+    }
+
+    final next = current.withdrawFromSavings(amount);
+    if (identical(next, current)) {
+      return SavingsTransferResult.invalidAmount;
+    }
+
+    await _save(next);
+    return SavingsTransferResult.success;
   }
 
   Future<void> resetForProfile({required bool demoMode}) async {

@@ -59,6 +59,11 @@ class GameState {
     return (savings / selectedGoal.cost).clamp(0.0, 1.0).toDouble();
   }
 
+  int get remainingToGoal =>
+      (selectedGoal.cost - savings).clamp(0, selectedGoal.cost).toInt();
+
+  bool get goalReached => remainingToGoal == 0;
+
   bool ownsItem(String itemId) => ownedItemIds.contains(itemId);
 
   bool canPurchase(ShopItem item) {
@@ -87,6 +92,37 @@ class GameState {
           : [...ownedItemIds, item.id],
       petCare: (petCare + item.careDelta).clamp(0, 100).toInt(),
       petMood: (petMood + item.moodDelta).clamp(0, 100).toInt(),
+    );
+  }
+
+  GameState selectGoal(GameGoal goal) {
+    if (goal == selectedGoal) return this;
+    return copyWith(selectedGoal: goal);
+  }
+
+  GameState depositToSavings(int amount) {
+    if (amount <= 0 || amount > balance) return this;
+    if (periodStatus == PeriodStatus.planning) return this;
+
+    return copyWith(
+      balance: balance - amount,
+      savings: savings + amount,
+      budgetActuals: periodStatus == PeriodStatus.planned
+          ? budgetActuals.addSavings(amount)
+          : budgetActuals,
+    );
+  }
+
+  GameState withdrawFromSavings(int amount) {
+    if (amount <= 0 || amount > savings) return this;
+    if (periodStatus == PeriodStatus.planning) return this;
+
+    return copyWith(
+      balance: balance + amount,
+      savings: savings - amount,
+      budgetActuals: periodStatus == PeriodStatus.planned
+          ? budgetActuals.removeSavings(amount)
+          : budgetActuals,
     );
   }
 
