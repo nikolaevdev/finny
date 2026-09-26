@@ -28,7 +28,7 @@ class GlossaryScreen extends StatelessWidget {
           AppSpacing.xxl,
         ),
         itemCount: FinancialGlossary.terms.length,
-        separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+        separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
         itemBuilder: (context, index) {
           final term = FinancialGlossary.terms[index];
           return FinniCard(

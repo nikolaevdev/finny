@@ -17,17 +17,6 @@ import '../../profile/application/local_profile_provider.dart';
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
-  void _showStageMessage(BuildContext context, String section) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text('$section пока закрыт.'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(localProfileProvider);
@@ -113,13 +102,15 @@ class HomeScreen extends ConsumerWidget {
                     _TopHud(
                       balance: game.balance,
                       playerName: profile.playerName,
-                      onSettings: () => _showStageMessage(context, 'Настройки'),
+                      onSettings: () => context.push(AppRoutes.settings),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     _GoalCard(
                       title: game.selectedGoal.title,
                       saved: game.savings,
                       goal: game.selectedGoal.cost,
+                      goalReady: game.goalReadyToComplete,
+                      allGoalsCompleted: game.allGoalsCompleted,
                       onTap: () => context.push(AppRoutes.savings),
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -232,7 +223,11 @@ class HomeScreen extends ConsumerWidget {
                         ),
                         _ActionTile(
                           title: 'Цель',
-                          subtitle: '${game.savings}/${game.selectedGoal.cost}',
+                          subtitle: game.allGoalsCompleted
+                              ? 'Все цели выполнены'
+                              : game.goalReadyToComplete
+                                  ? 'Можно завершить цель'
+                                  : '${game.savings}/${game.selectedGoal.cost}',
                           icon: Icons.track_changes_rounded,
                           color: AppColors.save,
                           onTap: () => context.push(AppRoutes.savings),
@@ -414,19 +409,25 @@ class _GoalCard extends StatelessWidget {
     required this.title,
     required this.saved,
     required this.goal,
+    required this.goalReady,
+    required this.allGoalsCompleted,
     required this.onTap,
   });
 
   final String title;
   final int saved;
   final int goal;
+  final bool goalReady;
+  final bool allGoalsCompleted;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final progress = goal <= 0
-        ? 0.0
-        : (saved / goal).clamp(0.0, 1.0).toDouble();
+    final progress = allGoalsCompleted
+        ? 1.0
+        : goal <= 0
+            ? 0.0
+            : (saved / goal).clamp(0.0, 1.0).toDouble();
 
     return FinniCard(
       onTap: onTap,
@@ -448,11 +449,15 @@ class _GoalCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      title,
+                      allGoalsCompleted ? 'Все финансовые цели выполнены' : title,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     Text(
-                      'Коплю: $saved из $goal',
+                      allGoalsCompleted
+                          ? 'В копилке осталось: $saved монет'
+                          : goalReady
+                              ? 'На цель уже хватает – можно завершить её'
+                              : 'Коплю: $saved из $goal',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: AppColors.textSecondary,
                           ),

@@ -29,10 +29,11 @@ class GameState {
     this.petCare = 60,
     this.petMood = 60,
     this.completedTaskIds = const [],
+    this.completedGoalIds = const [],
     this.periodHistory = const [],
   });
 
-  static const schemaVersion = 4;
+  static const schemaVersion = 5;
   static const defaultPeriodIncome = 120;
   static const defaultPeriodIncomeSource = 'Карманные монеты на период';
   static const requiredPeriods = 5;
@@ -53,6 +54,7 @@ class GameState {
   final int petCare;
   final int petMood;
   final List<String> completedTaskIds;
+  final List<String> completedGoalIds;
   final List<PeriodSummary> periodHistory;
 
   bool get periodStarted => periodStatus != PeriodStatus.notStarted;
@@ -78,18 +80,37 @@ class GameState {
   int get planningBudget => periodStartBalance ?? balance;
 
   double get goalProgress {
+    if (selectedGoalCompleted) return 1;
     if (selectedGoal.cost <= 0) return 0;
     return (savings / selectedGoal.cost).clamp(0.0, 1.0).toDouble();
   }
 
-  int get remainingToGoal =>
-      (selectedGoal.cost - savings).clamp(0, selectedGoal.cost).toInt();
+  int get remainingToGoal => selectedGoalCompleted
+      ? 0
+      : (selectedGoal.cost - savings).clamp(0, selectedGoal.cost).toInt();
 
-  bool get goalReached => remainingToGoal == 0;
+  bool get goalReached => selectedGoalCompleted || remainingToGoal == 0;
 
   bool ownsItem(String itemId) => ownedItemIds.contains(itemId);
 
   bool hasCompletedTask(String taskId) => completedTaskIds.contains(taskId);
+
+  bool isGoalCompleted(GameGoal goal) => completedGoalIds.contains(goal.id);
+
+  bool get selectedGoalCompleted => isGoalCompleted(selectedGoal);
+
+  bool get goalReadyToComplete =>
+      !selectedGoalCompleted && savings >= selectedGoal.cost;
+
+  bool get allGoalsCompleted =>
+      GameGoal.values.every((goal) => isGoalCompleted(goal));
+
+  GameGoal? get nextUncompletedGoal {
+    for (final goal in GameGoal.values) {
+      if (!isGoalCompleted(goal) && goal != selectedGoal) return goal;
+    }
+    return null;
+  }
 
   GameState completeTask(String taskId) {
     if (taskId.isEmpty || completedTaskIds.contains(taskId)) return this;
@@ -126,8 +147,21 @@ class GameState {
   }
 
   GameState selectGoal(GameGoal goal) {
-    if (goal == selectedGoal) return this;
+    if (goal == selectedGoal || isGoalCompleted(goal)) return this;
     return copyWith(selectedGoal: goal);
+  }
+
+  GameState completeSelectedGoal() {
+    if (!goalReadyToComplete) return this;
+
+    final completedGoal = selectedGoal;
+    final nextGoal = nextUncompletedGoal;
+
+    return copyWith(
+      savings: savings - completedGoal.cost,
+      completedGoalIds: [...completedGoalIds, completedGoal.id],
+      selectedGoal: nextGoal ?? completedGoal,
+    );
   }
 
   GameState depositToSavings(int amount) {
@@ -249,6 +283,7 @@ class GameState {
       petCare: petCare,
       petMood: petMood,
       completedTaskIds: completedTaskIds,
+      completedGoalIds: completedGoalIds,
       periodHistory: periodHistory,
     );
   }
@@ -281,6 +316,7 @@ class GameState {
     int? petCare,
     int? petMood,
     List<String>? completedTaskIds,
+    List<String>? completedGoalIds,
     List<PeriodSummary>? periodHistory,
   }) {
     return GameState(
@@ -300,6 +336,7 @@ class GameState {
       petCare: petCare ?? this.petCare,
       petMood: petMood ?? this.petMood,
       completedTaskIds: completedTaskIds ?? this.completedTaskIds,
+      completedGoalIds: completedGoalIds ?? this.completedGoalIds,
       periodHistory: periodHistory ?? this.periodHistory,
     );
   }
@@ -322,6 +359,7 @@ class GameState {
         'petCare': petCare,
         'petMood': petMood,
         'completedTaskIds': completedTaskIds,
+        'completedGoalIds': completedGoalIds,
         'periodHistory': periodHistory.map((summary) => summary.toJson()).toList(),
       };
 
@@ -387,6 +425,18 @@ class GameState {
       }
     }
 
+    final completedGoalIds = <String>[];
+    final rawCompletedGoalIds = json['completedGoalIds'];
+    if (rawCompletedGoalIds is List) {
+      for (final value in rawCompletedGoalIds) {
+        if (value is String &&
+            GameGoal.values.any((goal) => goal.id == value) &&
+            !completedGoalIds.contains(value)) {
+          completedGoalIds.add(value);
+        }
+      }
+    }
+
     final periodHistory = <PeriodSummary>[];
     final rawPeriodHistory = json['periodHistory'];
     if (rawPeriodHistory is List) {
@@ -427,6 +477,7 @@ class GameState {
       petCare: safePercent(json['petCare']),
       petMood: safePercent(json['petMood']),
       completedTaskIds: completedTaskIds,
+      completedGoalIds: completedGoalIds,
       periodHistory: periodHistory,
     );
   }

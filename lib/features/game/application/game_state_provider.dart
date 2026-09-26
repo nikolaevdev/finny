@@ -20,6 +20,12 @@ enum PurchaseResult {
   alreadyPurchased,
 }
 
+enum GoalCompletionResult {
+  success,
+  notReady,
+  alreadyCompleted,
+}
+
 enum SavingsTransferResult {
   success,
   invalidAmount,
@@ -128,6 +134,23 @@ class GameStateNotifier extends Notifier<GameState?> {
     return true;
   }
 
+  Future<GoalCompletionResult> completeSelectedGoal() async {
+    final current = state;
+    if (current == null) return GoalCompletionResult.notReady;
+    if (current.selectedGoalCompleted) {
+      return GoalCompletionResult.alreadyCompleted;
+    }
+    if (!current.goalReadyToComplete) {
+      return GoalCompletionResult.notReady;
+    }
+
+    final next = current.completeSelectedGoal();
+    if (identical(next, current)) return GoalCompletionResult.notReady;
+
+    await _save(next);
+    return GoalCompletionResult.success;
+  }
+
   Future<SavingsTransferResult> depositToSavings(int amount) async {
     final current = state;
     if (current == null || amount <= 0) {
@@ -218,6 +241,11 @@ class GameStateNotifier extends Notifier<GameState?> {
 
   Future<void> resetForProfile({required bool demoMode}) async {
     await createForProfile(demoMode: demoMode);
+  }
+
+  Future<void> deleteGameState() async {
+    await ref.read(gameStateRepositoryProvider).delete();
+    state = null;
   }
 
   Future<void> _save(GameState next) async {

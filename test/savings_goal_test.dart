@@ -131,4 +131,26 @@ void main() {
     expect(identical(state.depositToSavings(10), state), isTrue);
     expect(identical(state.withdrawFromSavings(10), state), isTrue);
   });
+  test('completed goal spends its cost and selects the next goal', () {
+    final state = plannedState(balance: 40, savings: 200);
+
+    final result = state.completeSelectedGoal();
+
+    expect(result.savings, 20);
+    expect(result.completedGoalIds, contains(GameGoal.explorerCorner.id));
+    expect(result.isGoalCompleted(GameGoal.explorerCorner), isTrue);
+    expect(result.selectedGoal, GameGoal.treeHouse);
+    expect(result.balance, 40);
+    expect(result.budgetActuals.saved, 0);
+  });
+
+  test('goal cannot be completed before enough is saved', () {
+    final state = plannedState(savings: 170);
+
+    final result = state.completeSelectedGoal();
+
+    expect(identical(result, state), isTrue);
+    expect(result.completedGoalIds, isEmpty);
+  });
+
 }

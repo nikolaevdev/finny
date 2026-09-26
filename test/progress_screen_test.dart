@@ -67,6 +67,11 @@ void main() {
     expect(find.text('Планирование бюджета'), findsOneWidget);
     expect(find.text('Период 1'), findsWidgets);
     expect(find.text('План 50  •  Факт 45'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Словарик'),
+      220,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('Словарик'), findsOneWidget);
   });
 }

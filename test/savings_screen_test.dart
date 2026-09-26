@@ -146,4 +146,48 @@ void main() {
     expect(repository.state!.budgetActuals.saved, 20);
   });
 
+  testWidgets('funded goal requires confirmation and shows a result', (
+    tester,
+  ) async {
+    const initial = GameState(
+      balance: 0,
+      savings: 180,
+      selectedGoal: GameGoal.explorerCorner,
+      currentPeriod: 1,
+      totalPeriods: 5,
+      periodStatus: PeriodStatus.notStarted,
+    );
+    final repository = _FakeGameStateRepository(initial);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          gameStateRepositoryProvider.overrideWithValue(repository),
+          initialGameStateProvider.overrideWithValue(initial),
+        ],
+        child: const MaterialApp(home: SavingsScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('На цель уже хватает!'), findsOneWidget);
+    await tester.tap(find.text('Выполнить цель'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Выполнить финансовую цель?'), findsOneWidget);
+    expect(repository.state!.completedGoalIds, isEmpty);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Выполнить цель'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Цель выполнена!'), findsOneWidget);
+    expect(find.textContaining('Вывод:'), findsOneWidget);
+    expect(repository.state!.savings, 0);
+    expect(
+      repository.state!.completedGoalIds,
+      contains(GameGoal.explorerCorner.id),
+    );
+    expect(repository.state!.selectedGoal, GameGoal.treeHouse);
+  });
+
 }

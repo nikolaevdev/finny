@@ -8,6 +8,7 @@ import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_card.dart';
 import '../../game/application/game_state_provider.dart';
+import '../../game/domain/game_goal.dart';
 import '../../game/domain/game_state.dart';
 import '../../game/domain/period_summary.dart';
 import '../../tasks/data/financial_task_catalog.dart';
@@ -178,23 +179,37 @@ class _GoalProgressCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          Text(game.selectedGoal.title, style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            game.allGoalsCompleted
+                ? 'Все финансовые цели выполнены'
+                : game.selectedGoal.title,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: AppSpacing.sm),
           ClipRRect(
             borderRadius: BorderRadius.circular(AppRadius.small),
             child: LinearProgressIndicator(
               minHeight: 12,
-              value: game.goalProgress,
+              value: game.allGoalsCompleted ? 1 : game.goalProgress,
               backgroundColor: AppColors.surfaceSecondary,
               color: AppColors.save,
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            game.goalReached
-                ? 'Цель достигнута: накоплено ${game.savings} монет.'
-                : 'Накоплено ${game.savings} из ${game.selectedGoal.cost}. Осталось ${game.remainingToGoal} монет.',
+            game.allGoalsCompleted
+                ? 'Выполнено ${game.completedGoalIds.length} из ${GameGoal.values.length} целей. В копилке осталось ${game.savings} монет.'
+                : game.goalReadyToComplete
+                    ? 'На цель уже хватает: ${game.savings} монет. Заверши её в разделе «Накопления».'
+                    : 'Накоплено ${game.savings} из ${game.selectedGoal.cost}. Осталось ${game.remainingToGoal} монет.',
           ),
+          if (!game.allGoalsCompleted && game.completedGoalIds.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              'Выполнено целей: ${game.completedGoalIds.length}/${GameGoal.values.length}.',
+              style: const TextStyle(color: AppColors.textSecondary),
+            ),
+          ],
         ],
       ),
     );
