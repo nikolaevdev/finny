@@ -5,8 +5,9 @@ import '../../shop/domain/shop_item.dart';
 import 'budget_actuals.dart';
 import 'budget_plan.dart';
 import 'game_goal.dart';
+import 'period_summary.dart';
 
-enum PeriodStatus { notStarted, planning, planned }
+enum PeriodStatus { notStarted, planning, planned, completed }
 
 @immutable
 class GameState {
@@ -27,9 +28,10 @@ class GameState {
     this.petCare = 60,
     this.petMood = 60,
     this.completedTaskIds = const [],
+    this.periodHistory = const [],
   });
 
-  static const schemaVersion = 3;
+  static const schemaVersion = 4;
   static const defaultPeriodIncome = 120;
   static const defaultPeriodIncomeSource = 'Карманные монеты на период';
   static const requiredPeriods = 5;
@@ -50,9 +52,16 @@ class GameState {
   final int petCare;
   final int petMood;
   final List<String> completedTaskIds;
+  final List<PeriodSummary> periodHistory;
 
   bool get periodStarted => periodStatus != PeriodStatus.notStarted;
   bool get budgetConfirmed => periodStatus == PeriodStatus.planned;
+  bool get periodCompleted => periodStatus == PeriodStatus.completed;
+  bool get allPeriodsCompleted =>
+      currentPeriod >= totalPeriods && periodStatus == PeriodStatus.completed;
+
+  PeriodSummary? get lastPeriodSummary =>
+      periodHistory.isEmpty ? null : periodHistory.last;
 
   int get planningBudget => periodStartBalance ?? balance;
 
@@ -111,7 +120,7 @@ class GameState {
 
   GameState depositToSavings(int amount) {
     if (amount <= 0 || amount > balance) return this;
-    if (periodStatus == PeriodStatus.planning) return this;
+    if (periodStatus == PeriodStatus.planning || periodCompleted) return this;
 
     return copyWith(
       balance: balance - amount,
@@ -124,7 +133,7 @@ class GameState {
 
   GameState withdrawFromSavings(int amount) {
     if (amount <= 0 || amount > savings) return this;
-    if (periodStatus == PeriodStatus.planning) return this;
+    if (periodStatus == PeriodStatus.planning || periodCompleted) return this;
 
     return copyWith(
       balance: balance + amount,
@@ -132,6 +141,55 @@ class GameState {
       budgetActuals: periodStatus == PeriodStatus.planned
           ? budgetActuals.removeSavings(amount)
           : budgetActuals,
+    );
+  }
+
+  PeriodSummary buildCurrentPeriodSummary() {
+    return PeriodSummary(
+      period: currentPeriod,
+      startBalance: periodStartBalance ?? balance,
+      endBalance: balance,
+      savingsAfter: savings,
+      plan: budgetPlan,
+      actuals: budgetActuals,
+      purchaseCount: purchases.length,
+      petCareAfter: petCare,
+      petMoodAfter: petMood,
+    );
+  }
+
+  GameState completeCurrentPeriod() {
+    if (periodStatus != PeriodStatus.planned) return this;
+
+    final summary = buildCurrentPeriodSummary();
+    final withoutSamePeriod = periodHistory
+        .where((item) => item.period != currentPeriod)
+        .toList(growable: false);
+
+    return copyWith(
+      periodStatus: PeriodStatus.completed,
+      periodHistory: [...withoutSamePeriod, summary],
+    );
+  }
+
+  GameState advanceToNextPeriod() {
+    if (periodStatus != PeriodStatus.completed || currentPeriod >= totalPeriods) {
+      return this;
+    }
+
+    return GameState(
+      balance: balance,
+      savings: savings,
+      selectedGoal: selectedGoal,
+      currentPeriod: currentPeriod + 1,
+      totalPeriods: totalPeriods,
+      periodStatus: PeriodStatus.notStarted,
+      purchases: const [],
+      ownedItemIds: ownedItemIds,
+      petCare: petCare,
+      petMood: petMood,
+      completedTaskIds: completedTaskIds,
+      periodHistory: periodHistory,
     );
   }
 
@@ -163,6 +221,7 @@ class GameState {
     int? petCare,
     int? petMood,
     List<String>? completedTaskIds,
+    List<PeriodSummary>? periodHistory,
   }) {
     return GameState(
       balance: balance ?? this.balance,
@@ -181,6 +240,7 @@ class GameState {
       petCare: petCare ?? this.petCare,
       petMood: petMood ?? this.petMood,
       completedTaskIds: completedTaskIds ?? this.completedTaskIds,
+      periodHistory: periodHistory ?? this.periodHistory,
     );
   }
 
@@ -202,6 +262,7 @@ class GameState {
         'petCare': petCare,
         'petMood': petMood,
         'completedTaskIds': completedTaskIds,
+        'periodHistory': periodHistory.map((summary) => summary.toJson()).toList(),
       };
 
   factory GameState.fromJson(Map<String, Object?> json) {
@@ -222,9 +283,7 @@ class GameState {
     }
 
     final rawStatus = json['periodStatus'];
-    final status = PeriodStatus.values.where(
-      (value) => value.name == rawStatus,
-    );
+    final status = PeriodStatus.values.where((value) => value.name == rawStatus);
 
     final rawPlan = json['budgetPlan'];
     final plan = rawPlan is Map
@@ -242,9 +301,7 @@ class GameState {
       for (final rawPurchase in rawPurchases) {
         if (rawPurchase is Map) {
           purchases.add(
-            PurchaseRecord.fromJson(
-              Map<String, Object?>.from(rawPurchase),
-            ),
+            PurchaseRecord.fromJson(Map<String, Object?>.from(rawPurchase)),
           );
         }
       }
@@ -254,9 +311,7 @@ class GameState {
     final rawOwnedItemIds = json['ownedItemIds'];
     if (rawOwnedItemIds is List) {
       for (final value in rawOwnedItemIds) {
-        if (value is String && value.isNotEmpty) {
-          ownedItemIds.add(value);
-        }
+        if (value is String && value.isNotEmpty) ownedItemIds.add(value);
       }
     }
 
@@ -264,8 +319,22 @@ class GameState {
     final rawCompletedTaskIds = json['completedTaskIds'];
     if (rawCompletedTaskIds is List) {
       for (final value in rawCompletedTaskIds) {
-        if (value is String && value.isNotEmpty && !completedTaskIds.contains(value)) {
+        if (value is String &&
+            value.isNotEmpty &&
+            !completedTaskIds.contains(value)) {
           completedTaskIds.add(value);
+        }
+      }
+    }
+
+    final periodHistory = <PeriodSummary>[];
+    final rawPeriodHistory = json['periodHistory'];
+    if (rawPeriodHistory is List) {
+      for (final value in rawPeriodHistory) {
+        if (value is Map) {
+          periodHistory.add(
+            PeriodSummary.fromJson(Map<String, Object?>.from(value)),
+          );
         }
       }
     }
@@ -283,8 +352,7 @@ class GameState {
         json['totalPeriods'],
         fallback: requiredPeriods,
       ),
-      periodStatus:
-          status.isEmpty ? PeriodStatus.notStarted : status.first,
+      periodStatus: status.isEmpty ? PeriodStatus.notStarted : status.first,
       periodIncome: safeNonNegative(json['periodIncome']),
       periodIncomeSource: json['periodIncomeSource'] is String
           ? json['periodIncomeSource'] as String
@@ -299,6 +367,7 @@ class GameState {
       petCare: safePercent(json['petCare']),
       petMood: safePercent(json['petMood']),
       completedTaskIds: completedTaskIds,
+      periodHistory: periodHistory,
     );
   }
 }
