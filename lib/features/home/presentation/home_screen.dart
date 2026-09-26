@@ -113,6 +113,7 @@ class HomeScreen extends ConsumerWidget {
                     _TopHud(
                       balance: game.balance,
                       playerName: profile.playerName,
+                      onSettings: () => _showStageMessage(context, 'Настройки'),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     _GoalCard(
@@ -245,8 +246,7 @@ class HomeScreen extends ConsumerWidget {
                           child: _SecondaryAction(
                             title: 'Прогресс',
                             icon: Icons.bar_chart_rounded,
-                            onTap: () =>
-                                _showStageMessage(context, 'Прогресс'),
+                            onTap: () => context.push(AppRoutes.progress),
                           ),
                         ),
                         const SizedBox(width: AppSpacing.md),
@@ -348,10 +348,12 @@ class _TopHud extends StatelessWidget {
   const _TopHud({
     required this.balance,
     required this.playerName,
+    required this.onSettings,
   });
 
   final int balance;
   final String playerName;
+  final VoidCallback onSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -402,7 +404,7 @@ class _TopHud extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         IconButton.filledTonal(
           tooltip: 'Настройки',
-          onPressed: () {},
+          onPressed: onSettings,
           icon: const Icon(Icons.settings_outlined),
         ),
       ],
