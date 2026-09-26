@@ -66,6 +66,10 @@ class DraftProfileNotifier extends Notifier<DraftProfile> {
       patternIndex: patternIndex,
     );
   }
+
+  void reset() {
+    state = const DraftProfile();
+  }
 }
 
 final draftProfileProvider =

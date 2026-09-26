@@ -63,6 +63,109 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
     }
   }
 
+  Future<void> _completeGoal(GameState game) async {
+    if (_isWorking || !game.goalReadyToComplete) return;
+
+    final completedGoal = game.selectedGoal;
+    final savingsAfter = game.savings - completedGoal.cost;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Выполнить финансовую цель?'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(completedGoal.title),
+            const SizedBox(height: AppSpacing.sm),
+            Text('Из накоплений будет использовано ${completedGoal.cost} монет.'),
+            const SizedBox(height: AppSpacing.sm),
+            Text('После выполнения останется: $savingsAfter монет.'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Пока копить'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Выполнить цель'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isWorking = true);
+    try {
+      final result = await ref
+          .read(gameStateProvider.notifier)
+          .completeSelectedGoal();
+
+      if (!mounted) return;
+
+      switch (result) {
+        case GoalCompletionResult.success:
+          final updated = ref.read(gameStateProvider);
+          await showDialog<void>(
+            context: context,
+            builder: (dialogContext) => AlertDialog(
+              icon: const Icon(
+                Icons.celebration_rounded,
+                color: AppColors.success,
+                size: 42,
+              ),
+              title: const Text('Цель выполнена!'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    completedGoal.resultText,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Text(completedGoal.lesson),
+                  const SizedBox(height: AppSpacing.md),
+                  Text('В накоплениях осталось: ${updated?.savings ?? savingsAfter} монет.'),
+                  if (updated != null && !updated.allGoalsCompleted) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    Text('Следующая цель: ${updated.selectedGoal.title}.'),
+                  ],
+                  if (updated?.allGoalsCompleted == true) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    const Text('Все финансовые цели выполнены!'),
+                  ],
+                ],
+              ),
+              actions: [
+                FilledButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: const Text('Продолжить'),
+                ),
+              ],
+            ),
+          );
+          break;
+        case GoalCompletionResult.notReady:
+          _showMessage('До этой цели пока не хватает накоплений.');
+          break;
+        case GoalCompletionResult.alreadyCompleted:
+          _showMessage('Эта цель уже выполнена.');
+          break;
+      }
+    } catch (_) {
+      if (mounted) {
+        _showMessage('Не удалось завершить цель. Попробуй ещё раз.');
+      }
+    } finally {
+      if (mounted) setState(() => _isWorking = false);
+    }
+  }
+
   Future<void> _deposit(GameState game) async {
     if (_isWorking) return;
 
@@ -81,8 +184,8 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
         case SavingsTransferResult.success:
           final updated = ref.read(gameStateProvider);
           _showMessage(
-            updated?.goalReached == true
-                ? '$amount монет в копилке. Цель достигнута!'
+            updated?.goalReadyToComplete == true
+                ? '$amount монет в копилке. На цель уже хватает – теперь её можно выполнить!'
                 : '$amount монет добавлено в накопления.',
           );
         case SavingsTransferResult.insufficientFunds:
@@ -217,6 +320,33 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _GoalSummary(game: game),
+                    if (game.goalReadyToComplete) ...[
+                      const SizedBox(height: AppSpacing.lg),
+                      _GoalCompletionCard(
+                        goal: game.selectedGoal,
+                        savingsAfter: game.savings - game.selectedGoal.cost,
+                        enabled: !_isWorking,
+                        onComplete: () => _completeGoal(game),
+                      ),
+                    ],
+                    if (game.allGoalsCompleted) ...[
+                      const SizedBox(height: AppSpacing.lg),
+                      const FinniCard(
+                        color: AppColors.surfaceSecondary,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(Icons.emoji_events_rounded, color: AppColors.success),
+                            SizedBox(width: AppSpacing.md),
+                            Expanded(
+                              child: Text(
+                                'Все три финансовые цели выполнены. Можно продолжать копить и управлять оставшимися монетами.',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: AppSpacing.xl),
                     Text(
                       'Выбери цель',
@@ -227,6 +357,7 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
                       _GoalOption(
                         goal: goal,
                         selected: goal == game.selectedGoal,
+                        completed: game.isGoalCompleted(goal),
                         enabled: !_isWorking,
                         onTap: () => _selectGoal(goal),
                       ),
@@ -355,20 +486,22 @@ class _GoalSummary extends StatelessWidget {
             children: [
               Expanded(
                 child: _GoalValue(
-                  label: 'Накоплено',
+                  label: game.selectedGoalCompleted ? 'В копилке' : 'Накоплено',
                   value: '${game.savings}',
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: _GoalValue(
-                  label: 'Осталось',
-                  value: '${game.remainingToGoal}',
+                  label: game.selectedGoalCompleted ? 'Выполнено целей' : 'Осталось',
+                  value: game.selectedGoalCompleted
+                      ? '${game.completedGoalIds.length}/${GameGoal.values.length}'
+                      : '${game.remainingToGoal}',
                 ),
               ),
             ],
           ),
-          if (game.goalReached) ...[
+          if (game.goalReadyToComplete || game.selectedGoalCompleted) ...[
             const SizedBox(height: AppSpacing.md),
             Container(
               width: double.infinity,
@@ -377,20 +510,70 @@ class _GoalSummary extends StatelessWidget {
                 color: AppColors.success.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(AppRadius.small),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.celebration_rounded, color: AppColors.success),
-                  SizedBox(width: AppSpacing.sm),
+                  const Icon(Icons.celebration_rounded, color: AppColors.success),
+                  const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
-                      'Цель достигнута!',
-                      style: TextStyle(fontWeight: FontWeight.w700),
+                      game.selectedGoalCompleted
+                          ? 'Цель выполнена!'
+                          : 'На цель уже хватает!',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ],
               ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _GoalCompletionCard extends StatelessWidget {
+  const _GoalCompletionCard({
+    required this.goal,
+    required this.savingsAfter,
+    required this.enabled,
+    required this.onComplete,
+  });
+
+  final GameGoal goal;
+  final int savingsAfter;
+  final bool enabled;
+  final VoidCallback onComplete;
+
+  @override
+  Widget build(BuildContext context) {
+    return FinniCard(
+      color: AppColors.success.withValues(alpha: 0.08),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.flag_circle_rounded, color: AppColors.success),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  'На цель уже хватает!',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Можно выполнить «${goal.title}». После этого из накоплений останется $savingsAfter монет.',
+          ),
+          const SizedBox(height: AppSpacing.md),
+          FinniButton(
+            text: 'Выполнить цель',
+            icon: Icons.celebration_rounded,
+            onPressed: enabled ? onComplete : null,
+          ),
         ],
       ),
     );
@@ -435,12 +618,14 @@ class _GoalOption extends StatelessWidget {
   const _GoalOption({
     required this.goal,
     required this.selected,
+    required this.completed,
     required this.enabled,
     required this.onTap,
   });
 
   final GameGoal goal;
   final bool selected;
+  final bool completed;
   final bool enabled;
   final VoidCallback onTap;
 
@@ -450,14 +635,16 @@ class _GoalOption extends StatelessWidget {
       color: selected
           ? AppColors.save.withValues(alpha: 0.10)
           : AppColors.surface,
-      onTap: enabled && !selected ? onTap : null,
+      onTap: enabled && !selected && !completed ? onTap : null,
       child: Row(
         children: [
           Icon(
-            selected
-                ? Icons.radio_button_checked_rounded
-                : Icons.radio_button_off_rounded,
-            color: selected ? AppColors.save : AppColors.textSecondary,
+            completed
+                ? Icons.check_circle_rounded
+                : selected
+                    ? Icons.radio_button_checked_rounded
+                    : Icons.radio_button_off_rounded,
+            color: completed || selected ? AppColors.save : AppColors.textSecondary,
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -470,6 +657,16 @@ class _GoalOption extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
+          if (completed) ...[
+            const Text(
+              'Выполнено',
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: AppColors.success,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+          ],
           Text(
             '${goal.cost}',
             style: const TextStyle(

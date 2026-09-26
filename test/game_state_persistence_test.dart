@@ -42,6 +42,7 @@ void main() {
       petCare: 70,
       petMood: 60,
       completedTaskIds: ['budget_weekend'],
+      completedGoalIds: ['tree_house'],
       periodHistory: [
         PeriodSummary(
           period: 1,
@@ -73,6 +74,7 @@ void main() {
     expect(restored.ownsItem('bandana'), isTrue);
     expect(restored.petCare, 70);
     expect(restored.completedTaskIds, ['budget_weekend']);
+    expect(restored.completedGoalIds, ['tree_house']);
     expect(restored.periodHistory, hasLength(1));
     expect(restored.periodHistory.single.endBalance, 90);
   });
@@ -162,7 +164,7 @@ void main() {
   });
 
 
-  test('stage 7 state keeps history and derives development without migration', () {
+  test('stage 10 state migrates with empty completed goals', () {
     final state = GameState.fromJson({
       'schemaVersion': 4,
       'balance': 80,
@@ -202,6 +204,7 @@ void main() {
     expect(state.periodHistory, hasLength(2));
     expect(state.petMood, 68);
     expect(state.developmentStage, PetDevelopmentStage.growing);
+    expect(state.completedGoalIds, isEmpty);
   });
 
   test('demo mode initial state starts with goal progress', () {

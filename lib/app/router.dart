@@ -12,6 +12,8 @@ import '../features/progress/presentation/progress_screen.dart';
 import '../features/period/presentation/period_summary_screen.dart';
 import '../features/savings/presentation/savings_screen.dart';
 import '../features/shop/presentation/shop_screen.dart';
+import '../features/settings/presentation/how_to_play_screen.dart';
+import '../features/settings/presentation/settings_screen.dart';
 import '../features/tasks/presentation/financial_task_screen.dart';
 import '../features/tasks/presentation/tasks_screen.dart';
 
@@ -29,6 +31,8 @@ abstract final class AppRoutes {
   static const periodSummary = '/period-summary';
   static const progress = '/progress';
   static const glossary = '/progress/glossary';
+  static const settings = '/settings';
+  static const howToPlay = '/settings/how-to-play';
   static const taskDetails = '/tasks/:taskId';
 
   static String task(String taskId) => '/tasks/$taskId';
@@ -86,6 +90,14 @@ GoRouter createAppRouter({required bool hasLocalProfile}) {
       GoRoute(
         path: AppRoutes.glossary,
         builder: (context, state) => const GlossaryScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.settings,
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.howToPlay,
+        builder: (context, state) => const HowToPlayScreen(),
       ),
       GoRoute(
         path: AppRoutes.tasks,

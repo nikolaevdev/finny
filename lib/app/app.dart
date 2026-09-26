@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/settings/application/app_settings_provider.dart';
 import 'router.dart';
 import 'theme/app_theme.dart';
 
-class FinniApp extends StatefulWidget {
+class FinniApp extends ConsumerStatefulWidget {
   const FinniApp({
     super.key,
     this.hasLocalProfile = false,
@@ -13,10 +15,10 @@ class FinniApp extends StatefulWidget {
   final bool hasLocalProfile;
 
   @override
-  State<FinniApp> createState() => _FinniAppState();
+  ConsumerState<FinniApp> createState() => _FinniAppState();
 }
 
-class _FinniAppState extends State<FinniApp> {
+class _FinniAppState extends ConsumerState<FinniApp> {
   late final GoRouter _router;
 
   @override
@@ -33,10 +35,15 @@ class _FinniAppState extends State<FinniApp> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = ref.watch(appSettingsProvider);
+
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Питомец Финни',
-      theme: AppTheme.light,
+      theme: AppTheme.light(
+        soundEnabled: settings.soundEnabled,
+        animationsEnabled: settings.animationsEnabled,
+      ),
       routerConfig: _router,
     );
   }

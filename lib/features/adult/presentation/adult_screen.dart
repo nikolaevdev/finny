@@ -314,7 +314,11 @@ class _LearningStateCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Text('Цель: ${game.selectedGoal.title}'),
           const SizedBox(height: AppSpacing.xs),
-          Text('Прогресс цели: $goalPercent%'),
+          Text(
+            game.allGoalsCompleted
+                ? 'Финансовые цели: выполнены все ${game.completedGoalIds.length}'
+                : 'Прогресс текущей цели: $goalPercent%',
+          ),
           const SizedBox(height: AppSpacing.xs),
           Text('Настроение Финни: ${game.moodLevel.title}'),
           const SizedBox(height: AppSpacing.xs),

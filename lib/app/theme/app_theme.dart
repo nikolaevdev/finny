@@ -4,11 +4,16 @@ import 'app_colors.dart';
 import 'app_radius.dart';
 
 abstract final class AppTheme {
-  static ThemeData get light {
+  static ThemeData light({
+    bool soundEnabled = true,
+    bool animationsEnabled = true,
+  }) {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: AppColors.purple,
       brightness: Brightness.light,
     );
+
+    final feedbackStyle = ButtonStyle(enableFeedback: soundEnabled);
 
     return ThemeData(
       useMaterial3: true,
@@ -19,6 +24,22 @@ abstract final class AppTheme {
         surface: AppColors.surface,
       ),
       dividerColor: AppColors.divider,
+      pageTransitionsTheme: animationsEnabled
+          ? const PageTransitionsTheme()
+          : const PageTransitionsTheme(
+              builders: {
+                TargetPlatform.android: _NoPageTransitionsBuilder(),
+                TargetPlatform.fuchsia: _NoPageTransitionsBuilder(),
+                TargetPlatform.iOS: _NoPageTransitionsBuilder(),
+                TargetPlatform.linux: _NoPageTransitionsBuilder(),
+                TargetPlatform.macOS: _NoPageTransitionsBuilder(),
+                TargetPlatform.windows: _NoPageTransitionsBuilder(),
+              },
+            ),
+      filledButtonTheme: FilledButtonThemeData(style: feedbackStyle),
+      outlinedButtonTheme: OutlinedButtonThemeData(style: feedbackStyle),
+      textButtonTheme: TextButtonThemeData(style: feedbackStyle),
+      iconButtonTheme: IconButtonThemeData(style: feedbackStyle),
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
           fontSize: 28,
@@ -81,5 +102,20 @@ abstract final class AppTheme {
         ),
       ),
     );
+  }
+}
+
+class _NoPageTransitionsBuilder extends PageTransitionsBuilder {
+  const _NoPageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return child;
   }
 }

@@ -79,6 +79,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Зачем нужен Финни'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Демонстрационный режим'),
+      220,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('Демонстрационный режим'), findsOneWidget);
 
     await tester.ensureVisible(find.text('Сбросить демо-прогресс'));
