@@ -28,6 +28,15 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     final game = ref.read(gameStateProvider);
     if (game == null) return;
 
+    if (!game.budgetConfirmed) {
+      _showMessage(
+        game.periodStatus == PeriodStatus.completed
+            ? 'Период уже завершён. Перейди к следующему периоду.'
+            : 'Сначала составь и подтверди план на период.',
+      );
+      return;
+    }
+
     if (!item.repeatable && game.ownsItem(item.id)) {
       _showMessage('Этот предмет уже куплен.');
       return;

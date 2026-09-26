@@ -89,6 +89,8 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
           _showMessage('На балансе не хватает монет для такого перевода.');
         case SavingsTransferResult.planningInProgress:
           _showMessage('Сначала подтверди план на текущий период.');
+        case SavingsTransferResult.periodCompleted:
+          _showMessage('Период уже завершён. Перейди к следующему периоду.');
         case SavingsTransferResult.invalidAmount:
         case SavingsTransferResult.insufficientSavings:
           _showMessage('Выбери сумму для перевода.');
@@ -161,6 +163,8 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
           _showMessage('В накоплениях не хватает монет для снятия.');
         case SavingsTransferResult.planningInProgress:
           _showMessage('Сначала подтверди план на текущий период.');
+        case SavingsTransferResult.periodCompleted:
+          _showMessage('Период уже завершён. Перейди к следующему периоду.');
         case SavingsTransferResult.invalidAmount:
         case SavingsTransferResult.insufficientFunds:
           _showMessage('Выбери сумму для снятия.');
@@ -237,7 +241,8 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
                       ),
                       enabled: !_isWorking &&
                           game.balance > 0 &&
-                          game.periodStatus != PeriodStatus.planning,
+                          game.periodStatus != PeriodStatus.planning &&
+                              game.periodStatus != PeriodStatus.completed,
                       onDecrease: () => _changeDeposit(-_step, game.balance),
                       onIncrease: () => _changeDeposit(_step, game.balance),
                       onAll: () => setState(() {
@@ -254,7 +259,8 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
                       ),
                       enabled: !_isWorking &&
                           game.savings > 0 &&
-                          game.periodStatus != PeriodStatus.planning,
+                          game.periodStatus != PeriodStatus.planning &&
+                              game.periodStatus != PeriodStatus.completed,
                       onDecrease: () =>
                           _changeWithdrawal(-_step, game.savings),
                       onIncrease: () =>

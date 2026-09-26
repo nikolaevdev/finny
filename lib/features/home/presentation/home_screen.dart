@@ -187,11 +187,22 @@ class HomeScreen extends ConsumerWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       children: [
                         _ActionTile(
-                          title: 'План',
+                          title: game.periodStatus == PeriodStatus.planned ||
+                                  game.periodStatus == PeriodStatus.completed
+                              ? 'Итог периода'
+                              : 'План',
                           subtitle: _planSubtitle(game),
-                          icon: Icons.fact_check_outlined,
+                          icon: game.periodStatus == PeriodStatus.planned ||
+                                  game.periodStatus == PeriodStatus.completed
+                              ? Icons.bar_chart_rounded
+                              : Icons.fact_check_outlined,
                           color: AppColors.purple,
-                          onTap: () => context.push(AppRoutes.budget),
+                          onTap: () => context.push(
+                            game.periodStatus == PeriodStatus.planned ||
+                                    game.periodStatus == PeriodStatus.completed
+                                ? AppRoutes.periodSummary
+                                : AppRoutes.budget,
+                          ),
                         ),
                         _ActionTile(
                           title: 'Магазин',
@@ -199,7 +210,9 @@ class HomeScreen extends ConsumerWidget {
                           color: AppColors.blue,
                           subtitle: game.budgetConfirmed
                               ? '${game.purchases.length} покупок'
-                              : 'После плана',
+                              : game.periodCompleted
+                                  ? 'Период завершён'
+                                  : 'После плана',
                           onTap: () => context.push(AppRoutes.shop),
                         ),
                         _ActionTile(
@@ -287,7 +300,10 @@ class HomeScreen extends ConsumerWidget {
       PeriodStatus.planning =>
         'План ещё не готов. Распределим монеты между тремя направлениями.',
       PeriodStatus.planned =>
-        'План готов! Теперь можно проверить его в игровых ситуациях.',
+        'План готов! Когда закончишь с решениями, сравним план с фактом.',
+      PeriodStatus.completed => game.allPeriodsCompleted
+          ? 'Все пять периодов пройдены. Можно посмотреть итог последнего периода.'
+          : 'Период завершён. Посмотрим итог и перейдём к следующему?',
     };
   }
 
@@ -295,7 +311,10 @@ class HomeScreen extends ConsumerWidget {
     return switch (game.periodStatus) {
       PeriodStatus.notStarted => 'Начать период',
       PeriodStatus.planning => 'Продолжить',
-      PeriodStatus.planned => 'План готов',
+      PeriodStatus.planned => 'Сравнить план и факт',
+      PeriodStatus.completed => game.allPeriodsCompleted
+          ? '5 периодов пройдено'
+          : 'Открыть итог',
     };
   }
 }
@@ -457,6 +476,13 @@ class _PeriodStatusCard extends StatelessWidget {
           'Период ${game.currentPeriod}: план подтверждён',
           Icons.task_alt_rounded,
           AppColors.success,
+        ),
+      PeriodStatus.completed => (
+          game.allPeriodsCompleted
+              ? 'Все ${game.totalPeriods} периодов завершены'
+              : 'Период ${game.currentPeriod}: завершён',
+          Icons.flag_circle_outlined,
+          AppColors.purple,
         ),
     };
 

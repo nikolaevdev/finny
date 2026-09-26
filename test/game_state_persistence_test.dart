@@ -3,6 +3,7 @@ import 'package:finny/features/game/domain/budget_actuals.dart';
 import 'package:finny/features/game/domain/budget_plan.dart';
 import 'package:finny/features/game/domain/game_goal.dart';
 import 'package:finny/features/game/domain/game_state.dart';
+import 'package:finny/features/game/domain/period_summary.dart';
 import 'package:finny/features/shop/domain/purchase_record.dart';
 import 'package:finny/features/shop/domain/shop_item.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -40,6 +41,19 @@ void main() {
       petCare: 70,
       petMood: 60,
       completedTaskIds: ['budget_weekend'],
+      periodHistory: [
+        PeriodSummary(
+          period: 1,
+          startBalance: 120,
+          endBalance: 90,
+          savingsAfter: 40,
+          plan: BudgetPlan(need: 50, want: 30, save: 30),
+          actuals: BudgetActuals(needSpent: 30),
+          purchaseCount: 1,
+          petCareAfter: 70,
+          petMoodAfter: 60,
+        ),
+      ],
     );
 
     await repository.save(state);
@@ -58,6 +72,8 @@ void main() {
     expect(restored.ownsItem('bandana'), isTrue);
     expect(restored.petCare, 70);
     expect(restored.completedTaskIds, ['budget_weekend']);
+    expect(restored.periodHistory, hasLength(1));
+    expect(restored.periodHistory.single.endBalance, 90);
   });
 
   test('stage 3 state migrates to current schema', () {
@@ -120,6 +136,28 @@ void main() {
     expect(state.budgetActuals.saved, 20);
     expect(state.remainingToGoal, 205);
     expect(state.completedTaskIds, isEmpty);
+  });
+
+  test('stage 6 state migrates to stage 7 with empty period history', () {
+    final state = GameState.fromJson({
+      'schemaVersion': 3,
+      'balance': 80,
+      'savings': 40,
+      'selectedGoal': 'explorer_corner',
+      'currentPeriod': 1,
+      'totalPeriods': 5,
+      'periodStatus': 'planned',
+      'periodIncome': 120,
+      'periodStartBalance': 120,
+      'budgetPlan': {'need': 50, 'want': 30, 'save': 20},
+      'budgetActuals': {'needSpent': 25, 'wantSpent': 15, 'saved': 0},
+      'completedTaskIds': ['budget_weekend'],
+    });
+
+    expect(state.balance, 80);
+    expect(state.completedTaskIds, ['budget_weekend']);
+    expect(state.periodHistory, isEmpty);
+    expect(state.periodStatus, PeriodStatus.planned);
   });
 
   test('demo mode initial state starts with goal progress', () {

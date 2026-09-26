@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
@@ -120,6 +121,10 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                   PeriodStatus.planned => _BudgetConfirmedContent(
                       game: game,
                       onBackHome: () => context.pop(),
+                    ),
+                  PeriodStatus.completed => _BudgetCompletedContent(
+                      game: game,
+                      onOpenSummary: () => context.go(AppRoutes.periodSummary),
                     ),
                 },
               ),
@@ -397,6 +402,49 @@ class _BudgetConfirmedContent extends StatelessWidget {
           text: 'Вернуться домой',
           icon: Icons.home_outlined,
           onPressed: onBackHome,
+        ),
+      ],
+    );
+  }
+}
+
+class _BudgetCompletedContent extends StatelessWidget {
+  const _BudgetCompletedContent({
+    required this.game,
+    required this.onOpenSummary,
+  });
+
+  final GameState game;
+  final VoidCallback onOpenSummary;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _PeriodBadge(game: game),
+        const SizedBox(height: AppSpacing.xl),
+        const Icon(
+          Icons.flag_circle_outlined,
+          size: 72,
+          color: AppColors.purple,
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Text(
+          'Период завершён',
+          style: Theme.of(context).textTheme.headlineMedium,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        const Text(
+          'План этого периода уже зафиксирован. Открой итог, чтобы сравнить его с фактическими решениями.',
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: AppSpacing.xxl),
+        FinniButton(
+          text: 'Открыть итог периода',
+          icon: Icons.bar_chart_rounded,
+          onPressed: onOpenSummary,
         ),
       ],
     );

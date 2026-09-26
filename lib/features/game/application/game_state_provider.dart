@@ -26,6 +26,7 @@ enum SavingsTransferResult {
   insufficientFunds,
   insufficientSavings,
   planningInProgress,
+  periodCompleted,
 }
 
 class GameStateNotifier extends Notifier<GameState?> {
@@ -135,6 +136,9 @@ class GameStateNotifier extends Notifier<GameState?> {
     if (current.periodStatus == PeriodStatus.planning) {
       return SavingsTransferResult.planningInProgress;
     }
+    if (current.periodStatus == PeriodStatus.completed) {
+      return SavingsTransferResult.periodCompleted;
+    }
     if (amount > current.balance) {
       return SavingsTransferResult.insufficientFunds;
     }
@@ -156,6 +160,9 @@ class GameStateNotifier extends Notifier<GameState?> {
     if (current.periodStatus == PeriodStatus.planning) {
       return SavingsTransferResult.planningInProgress;
     }
+    if (current.periodStatus == PeriodStatus.completed) {
+      return SavingsTransferResult.periodCompleted;
+    }
     if (amount > current.savings) {
       return SavingsTransferResult.insufficientSavings;
     }
@@ -167,6 +174,33 @@ class GameStateNotifier extends Notifier<GameState?> {
 
     await _save(next);
     return SavingsTransferResult.success;
+  }
+
+  Future<bool> completeCurrentPeriod() async {
+    final current = state;
+    if (current == null || current.periodStatus != PeriodStatus.planned) {
+      return false;
+    }
+
+    final next = current.completeCurrentPeriod();
+    if (identical(next, current)) return false;
+
+    await _save(next);
+    return true;
+  }
+
+  Future<bool> advanceToNextPeriod() async {
+    final current = state;
+    if (current == null || current.periodStatus != PeriodStatus.completed) {
+      return false;
+    }
+    if (current.currentPeriod >= current.totalPeriods) return false;
+
+    final next = current.advanceToNextPeriod();
+    if (identical(next, current)) return false;
+
+    await _save(next);
+    return true;
   }
 
   Future<bool> completeTask(String taskId) async {
