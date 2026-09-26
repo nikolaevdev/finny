@@ -155,23 +155,23 @@ class HomeScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.xl),
-                    const Row(
+                    Row(
                       children: [
                         Expanded(
                           child: _PetStat(
                             title: 'Забота',
                             icon: Icons.favorite_rounded,
                             color: AppColors.need,
-                            value: 0.8,
+                            value: game.petCare / 100,
                           ),
                         ),
-                        SizedBox(width: AppSpacing.md),
+                        const SizedBox(width: AppSpacing.md),
                         Expanded(
                           child: _PetStat(
                             title: 'Настроение',
                             icon: Icons.sentiment_satisfied_alt_rounded,
                             color: AppColors.want,
-                            value: 0.8,
+                            value: game.petMood / 100,
                           ),
                         ),
                       ],
@@ -196,7 +196,10 @@ class HomeScreen extends ConsumerWidget {
                           title: 'Магазин',
                           icon: Icons.storefront_rounded,
                           color: AppColors.blue,
-                          onTap: () => _showStageMessage(context, 'Магазин'),
+                          subtitle: game.budgetConfirmed
+                              ? '${game.purchases.length} покупок'
+                              : 'После плана',
+                          onTap: () => context.push(AppRoutes.shop),
                         ),
                         _ActionTile(
                           title: 'Задания',
