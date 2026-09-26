@@ -28,6 +28,26 @@ class BudgetActuals {
     };
   }
 
+  BudgetActuals addSavings(int amount) {
+    if (amount <= 0) return this;
+
+    return BudgetActuals(
+      needSpent: needSpent,
+      wantSpent: wantSpent,
+      saved: saved + amount,
+    );
+  }
+
+  BudgetActuals removeSavings(int amount) {
+    if (amount <= 0) return this;
+
+    return BudgetActuals(
+      needSpent: needSpent,
+      wantSpent: wantSpent,
+      saved: (saved - amount).clamp(0, saved).toInt(),
+    );
+  }
+
   Map<String, Object?> toJson() => {
         'needSpent': needSpent,
         'wantSpent': wantSpent,
