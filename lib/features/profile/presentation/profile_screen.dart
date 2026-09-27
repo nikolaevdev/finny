@@ -38,10 +38,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void _continue() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    ref.read(draftProfileProvider.notifier).setPlayer(
-          name: _nameController.text,
-          demoMode: _demoMode,
-        );
+    ref
+        .read(draftProfileProvider.notifier)
+        .setPlayer(name: _nameController.text, demoMode: _demoMode);
 
     context.push(AppRoutes.pet);
   }
@@ -74,9 +73,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 Text(
                   'Для игрового профиля достаточно имени. '
                   'Телефон, e-mail и регистрация не нужны.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                  style: Theme.of(context).textTheme.bodyMedium
+                      ?.copyWith(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 Text(

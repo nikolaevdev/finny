@@ -6,28 +6,28 @@ enum PetDevelopmentStage { little, growing, confident }
 
 extension PetMoodLevelText on PetMoodLevel {
   String get title => switch (this) {
-        PetMoodLevel.quiet => 'Немного грустит',
-        PetMoodLevel.calm => 'Спокоен',
-        PetMoodLevel.happy => 'Доволен',
-        PetMoodLevel.delighted => 'Очень рад',
-      };
+    PetMoodLevel.quiet => 'Немного грустит',
+    PetMoodLevel.calm => 'Спокоен',
+    PetMoodLevel.happy => 'Доволен',
+    PetMoodLevel.delighted => 'Очень рад',
+  };
 }
 
 extension PetDevelopmentStageText on PetDevelopmentStage {
   String get title => switch (this) {
-        PetDevelopmentStage.little => 'Малыш',
-        PetDevelopmentStage.growing => 'Подрос',
-        PetDevelopmentStage.confident => 'Уверенный Финни',
-      };
+    PetDevelopmentStage.little => 'Малыш',
+    PetDevelopmentStage.growing => 'Подрос',
+    PetDevelopmentStage.confident => 'Уверенный Финни',
+  };
 
   String get shortReason => switch (this) {
-        PetDevelopmentStage.little =>
-          'Финни только учится жить по плану и копить регулярно.',
-        PetDevelopmentStage.growing =>
-          'Финни подрос благодаря нескольким продуманным периодам.',
-        PetDevelopmentStage.confident =>
-          'Финни вырос благодаря заботе, планированию и регулярным накоплениям.',
-      };
+    PetDevelopmentStage.little =>
+      'Финни только учится жить по плану и копить регулярно.',
+    PetDevelopmentStage.growing =>
+      'Финни подрос благодаря нескольким продуманным периодам.',
+    PetDevelopmentStage.confident =>
+      'Финни вырос благодаря заботе, планированию и регулярным накоплениям.',
+  };
 }
 
 PetMoodLevel moodLevelFor(int mood) {
@@ -74,14 +74,12 @@ class PetDevelopmentProgress {
     }
 
     final completed = history.length;
-    final stage = completed >= 4 &&
-            points >= 8 &&
-            needCovered >= 3 &&
-            savingPeriods >= 3
+    final stage =
+        completed >= 4 && points >= 8 && needCovered >= 3 && savingPeriods >= 3
         ? PetDevelopmentStage.confident
         : completed >= 2 && points >= 3
-            ? PetDevelopmentStage.growing
-            : PetDevelopmentStage.little;
+        ? PetDevelopmentStage.growing
+        : PetDevelopmentStage.little;
 
     return PetDevelopmentProgress(
       stage: stage,

@@ -5,8 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../domain/app_settings.dart';
 import '../domain/app_settings_repository.dart';
 
-class SharedPreferencesAppSettingsRepository
-    implements AppSettingsRepository {
+class SharedPreferencesAppSettingsRepository implements AppSettingsRepository {
   SharedPreferencesAppSettingsRepository(this._preferences);
 
   static const _settingsKey = 'finni.app_settings.v1';

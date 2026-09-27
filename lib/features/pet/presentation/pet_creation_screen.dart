@@ -28,9 +28,24 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
   int _patternIndex = 0;
   bool _isSaving = false;
 
-  static const _colors = ['Бирюзовый', 'Янтарный', 'Фиолетовый'];
-  static const _ears = ['Острые', 'Мягкие', 'Длинные'];
-  static const _patterns = ['Звезда', 'Волна', 'Искры'];
+  static const _colors = ['Бирюзовый', 'Песочный', 'Лавандовый'];
+  static const _ears = ['Заострённые', 'Округлые', 'Висячие'];
+  static const _patterns = ['Без узора', 'Пятна', 'Полосы'];
+  static const _colorAssets = [
+    'assets/images/finni/traits/colors/turquoise.png',
+    'assets/images/finni/traits/colors/sand.png',
+    'assets/images/finni/traits/colors/lavender.png',
+  ];
+  static const _earAssets = [
+    'assets/images/finni/traits/ears/pointed.png',
+    'assets/images/finni/traits/ears/rounded.png',
+    'assets/images/finni/traits/ears/floppy.png',
+  ];
+  static const _patternAssets = [
+    'assets/images/finni/traits/patterns/plain.png',
+    'assets/images/finni/traits/patterns/spots.png',
+    'assets/images/finni/traits/patterns/stripes.png',
+  ];
 
   @override
   void initState() {
@@ -51,7 +66,9 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
   Future<void> _finish() async {
     if (_isSaving || !(_formKey.currentState?.validate() ?? false)) return;
 
-    ref.read(draftProfileProvider.notifier).setPet(
+    ref
+        .read(draftProfileProvider.notifier)
+        .setPet(
           name: _petNameController.text,
           colorIndex: _colorIndex,
           earsIndex: _earsIndex,
@@ -75,9 +92,7 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           const SnackBar(
-            content: Text(
-              'Не удалось сохранить профиль. Попробуй ещё раз.',
-            ),
+            content: Text('Не удалось сохранить профиль. Попробуй ещё раз.'),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -116,9 +131,8 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   'Выбери внешний вид и дай питомцу игровое имя.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                  style: Theme.of(context).textTheme.bodyMedium
+                      ?.copyWith(color: AppColors.textSecondary),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppSpacing.xl),
@@ -136,6 +150,7 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
                 _ChoiceSection(
                   title: 'Окрас',
                   labels: _colors,
+                  assetPaths: _colorAssets,
                   selected: _colorIndex,
                   onSelected: (index) {
                     setState(() => _colorIndex = index);
@@ -145,6 +160,7 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
                 _ChoiceSection(
                   title: 'Ушки',
                   labels: _ears,
+                  assetPaths: _earAssets,
                   selected: _earsIndex,
                   onSelected: (index) {
                     setState(() => _earsIndex = index);
@@ -154,6 +170,7 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
                 _ChoiceSection(
                   title: 'Узор',
                   labels: _patterns,
+                  assetPaths: _patternAssets,
                   selected: _patternIndex,
                   onSelected: (index) {
                     setState(() => _patternIndex = index);
@@ -187,15 +204,12 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
                   color: AppColors.surfaceSecondary,
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.auto_awesome_rounded,
-                        color: AppColors.purple,
-                      ),
+                      Icon(Icons.auto_awesome_rounded, color: AppColors.purple),
                       SizedBox(width: AppSpacing.md),
                       Expanded(
                         child: Text(
-                          '3 окраса × 3 формы ушей × 3 узора = '
-                          '27 различимых комбинаций внешности.',
+                          'Окрас, форма ушей и узор сохраняются отдельно: '
+                          'доступно 27 комбинаций внешности.',
                           style: TextStyle(fontSize: 16),
                         ),
                       ),
@@ -221,12 +235,14 @@ class _ChoiceSection extends StatelessWidget {
   const _ChoiceSection({
     required this.title,
     required this.labels,
+    required this.assetPaths,
     required this.selected,
     required this.onSelected,
   });
 
   final String title;
   final List<String> labels;
+  final List<String> assetPaths;
   final int selected;
   final ValueChanged<int> onSelected;
 
@@ -243,13 +259,19 @@ class _ChoiceSection extends StatelessWidget {
           children: [
             for (var i = 0; i < labels.length; i++)
               ChoiceChip(
+                avatar: ClipOval(
+                  child: Image.asset(
+                    assetPaths[i],
+                    width: 28,
+                    height: 28,
+                    fit: BoxFit.cover,
+                  ),
+                ),
                 label: Text(labels[i]),
                 selected: selected == i,
                 selectedColor: AppColors.purple.withValues(alpha: 0.16),
                 side: BorderSide(
-                  color: selected == i
-                      ? AppColors.purple
-                      : AppColors.divider,
+                  color: selected == i ? AppColors.purple : AppColors.divider,
                 ),
                 onSelected: (_) => onSelected(i),
               ),

@@ -13,6 +13,10 @@ void main() {
         greaterThanOrEqualTo(2),
       );
     }
+
+    for (final task in FinancialTaskCatalog.tasks) {
+      expect(task.rewardCoins, greaterThan(0));
+    }
   });
 
   test('budget task accepts balanced allocation and explains weak one', () {

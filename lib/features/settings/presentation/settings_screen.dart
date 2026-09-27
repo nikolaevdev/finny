@@ -6,139 +6,56 @@ import '../../../app/router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_card.dart';
-import '../../game/application/game_state_provider.dart';
-import '../../profile/application/draft_profile_provider.dart';
-import '../../profile/application/local_profile_provider.dart';
 import '../application/app_settings_provider.dart';
 
-class SettingsScreen extends ConsumerStatefulWidget {
+class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
-  @override
-  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  bool _isWorking = false;
-
-  Future<void> _setSound(bool value) async {
+  Future<void> _setSound(
+    BuildContext context,
+    WidgetRef ref,
+    bool value,
+  ) async {
     try {
       await ref.read(appSettingsProvider.notifier).setSoundEnabled(value);
     } catch (_) {
-      if (mounted) _showMessage('Не удалось сохранить настройку.');
+      if (context.mounted) {
+        _showMessage(context, 'Не удалось сохранить настройку.');
+      }
     }
   }
 
-  Future<void> _setAnimations(bool value) async {
+  Future<void> _setAnimations(
+    BuildContext context,
+    WidgetRef ref,
+    bool value,
+  ) async {
     try {
       await ref.read(appSettingsProvider.notifier).setAnimationsEnabled(value);
     } catch (_) {
-      if (mounted) _showMessage('Не удалось сохранить настройку.');
-    }
-  }
-
-  Future<void> _resetProgress() async {
-    if (_isWorking) return;
-    final profile = ref.read(localProfileProvider);
-    if (profile == null) return;
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Сбросить игровой прогресс?'),
-        content: const Text(
-          'Баланс, покупки, накопления, задания, цели и история периодов вернутся к исходному состоянию. Имя и внешний вид Финни сохранятся.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Отмена'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Сбросить'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true || !mounted) return;
-
-    setState(() => _isWorking = true);
-    try {
-      await ref
-          .read(gameStateProvider.notifier)
-          .resetForProfile(demoMode: profile.demoMode);
-      if (mounted) {
-        _showMessage('Игровой прогресс сброшен.');
-      }
-    } catch (_) {
-      if (mounted) _showMessage('Не удалось сбросить игровой прогресс.');
-    } finally {
-      if (mounted) setState(() => _isWorking = false);
-    }
-  }
-
-  Future<void> _deleteProfile() async {
-    if (_isWorking) return;
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Удалить профиль и прогресс?'),
-        content: const Text(
-          'Будут удалены локальный профиль Финни и весь игровой прогресс на этом устройстве. Это действие нельзя отменить.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Отмена'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Удалить'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true || !mounted) return;
-
-    setState(() => _isWorking = true);
-    try {
-      await ref.read(gameStateProvider.notifier).deleteGameState();
-      await ref.read(localProfileProvider.notifier).deleteProfile();
-      ref.read(draftProfileProvider.notifier).reset();
-      if (!mounted) return;
-      context.go(AppRoutes.onboarding);
-    } catch (_) {
-      if (mounted) {
-        _showMessage('Не удалось удалить локальные данные. Попробуй ещё раз.');
-        setState(() => _isWorking = false);
+      if (context.mounted) {
+        _showMessage(context, 'Не удалось сохранить настройку.');
       }
     }
   }
 
-  void _showMessage(String message) {
+  void _showMessage(BuildContext context, String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(
-          content: Text(message),
-          behavior: SnackBarBehavior.floating,
-        ),
+        SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
       );
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(appSettingsProvider);
 
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           tooltip: 'Назад',
-          onPressed: _isWorking ? null : () => context.pop(),
+          onPressed: () => context.pop(),
           icon: const Icon(Icons.arrow_back_rounded),
         ),
         title: const Text('Настройки'),
@@ -168,7 +85,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   subtitle: const Text(
                     'Звуковая обратная связь при нажатии на элементы управления.',
                   ),
-                  onChanged: _isWorking ? null : _setSound,
+                  onChanged: (value) => _setSound(context, ref, value),
                 ),
                 const Divider(),
                 SwitchListTile.adaptive(
@@ -183,7 +100,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   subtitle: const Text(
                     'Плавные переходы между экранами приложения.',
                   ),
-                  onChanged: _isWorking ? null : _setAnimations,
+                  onChanged: (value) => _setAnimations(context, ref, value),
                 ),
               ],
             ),
@@ -192,12 +109,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           Text('Помощь', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.md),
           FinniCard(
-            onTap: _isWorking ? null : () => context.push(AppRoutes.howToPlay),
+            onTap: () => context.push(AppRoutes.howToPlay),
             child: const Row(
               children: [
                 CircleAvatar(
                   backgroundColor: AppColors.surfaceSecondary,
-                  child: Icon(Icons.help_outline_rounded, color: AppColors.purple),
+                  child: Icon(
+                    Icons.help_outline_rounded,
+                    color: AppColors.purple,
+                  ),
                 ),
                 SizedBox(width: AppSpacing.md),
                 Expanded(
@@ -206,7 +126,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     children: [
                       Text(
                         'Как играть',
-                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       SizedBox(height: AppSpacing.xs),
                       Text('Повторить короткую подсказку по игровому циклу.'),
@@ -218,49 +141,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
-          Text('Данные', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: AppSpacing.md),
-          FinniCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+          const FinniCard(
+            color: AppColors.surfaceSecondary,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(
-                    Icons.restart_alt_rounded,
-                    color: AppColors.purple,
+                Icon(Icons.lock_outline_rounded, color: AppColors.purple),
+                SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Text(
+                    'Сброс и удаление профиля доступны в защищённом разделе «Для взрослого».',
                   ),
-                  title: const Text('Сбросить игровой прогресс'),
-                  subtitle: const Text(
-                    'Профиль и внешний вид Финни сохранятся.',
-                  ),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  enabled: !_isWorking,
-                  onTap: _resetProgress,
-                ),
-                const Divider(),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(
-                    Icons.delete_outline_rounded,
-                    color: Colors.redAccent,
-                  ),
-                  title: const Text('Удалить профиль и данные'),
-                  subtitle: const Text(
-                    'Удалить локальный профиль и весь прогресс с устройства.',
-                  ),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  enabled: !_isWorking,
-                  onTap: _deleteProfile,
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          const Text(
-            'Все данные приложения хранятся локально на этом устройстве.',
-            style: TextStyle(color: AppColors.textSecondary),
-            textAlign: TextAlign.center,
           ),
         ],
       ),

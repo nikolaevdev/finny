@@ -74,9 +74,8 @@ class _AdultAccessScreenState extends State<AdultAccessScreen> {
             const SizedBox(height: AppSpacing.sm),
             Text(
               'Этот раздел предназначен для взрослого. Решите простой пример, чтобы продолжить.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+              style: Theme.of(context).textTheme.bodyMedium
+                  ?.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.xl),

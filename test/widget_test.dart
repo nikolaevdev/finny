@@ -6,11 +6,7 @@ void main() {
   testWidgets('onboarding opens when local profile does not exist', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: FinniApp(),
-      ),
-    );
+    await tester.pumpWidget(const ProviderScope(child: FinniApp()));
 
     await tester.pumpAndSettle();
 

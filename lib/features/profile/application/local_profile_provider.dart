@@ -50,5 +50,5 @@ class LocalProfileNotifier extends Notifier<PlayerProfile?> {
 
 final localProfileProvider =
     NotifierProvider<LocalProfileNotifier, PlayerProfile?>(
-  LocalProfileNotifier.new,
-);
+      LocalProfileNotifier.new,
+    );

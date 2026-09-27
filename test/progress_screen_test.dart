@@ -26,7 +26,9 @@ class _FakeGameStateRepository implements GameStateRepository {
 }
 
 void main() {
-  testWidgets('progress screen shows tasks goal and latest period', (tester) async {
+  testWidgets('progress screen shows tasks goal and latest period', (
+    tester,
+  ) async {
     const summary = PeriodSummary(
       period: 1,
       startBalance: 120,
@@ -63,7 +65,10 @@ void main() {
 
     expect(find.text('Мой прогресс'), findsOneWidget);
     expect(find.text('3/6'), findsOneWidget);
-    expect(find.text('Накоплено 25 из 180. Осталось 155 монет.'), findsOneWidget);
+    expect(
+      find.text('Накоплено 25 из 180. Осталось 155 монет.'),
+      findsOneWidget,
+    );
     expect(find.text('Планирование бюджета'), findsOneWidget);
     expect(find.text('Период 1'), findsWidgets);
     expect(find.text('План 50  •  Факт 45'), findsOneWidget);

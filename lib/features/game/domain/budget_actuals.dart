@@ -1,11 +1,7 @@
 import '../../shop/domain/shop_item.dart';
 
 class BudgetActuals {
-  const BudgetActuals({
-    this.needSpent = 0,
-    this.wantSpent = 0,
-    this.saved = 0,
-  });
+  const BudgetActuals({this.needSpent = 0, this.wantSpent = 0, this.saved = 0});
 
   final int needSpent;
   final int wantSpent;
@@ -16,15 +12,15 @@ class BudgetActuals {
   BudgetActuals addPurchase(ShopItem item) {
     return switch (item.category) {
       ShopCategory.need => BudgetActuals(
-          needSpent: needSpent + item.price,
-          wantSpent: wantSpent,
-          saved: saved,
-        ),
+        needSpent: needSpent + item.price,
+        wantSpent: wantSpent,
+        saved: saved,
+      ),
       ShopCategory.want => BudgetActuals(
-          needSpent: needSpent,
-          wantSpent: wantSpent + item.price,
-          saved: saved,
-        ),
+        needSpent: needSpent,
+        wantSpent: wantSpent + item.price,
+        saved: saved,
+      ),
     };
   }
 
@@ -49,10 +45,10 @@ class BudgetActuals {
   }
 
   Map<String, Object?> toJson() => {
-        'needSpent': needSpent,
-        'wantSpent': wantSpent,
-        'saved': saved,
-      };
+    'needSpent': needSpent,
+    'wantSpent': wantSpent,
+    'saved': saved,
+  };
 
   factory BudgetActuals.fromJson(Map<String, Object?> json) {
     int safeAmount(Object? value) {

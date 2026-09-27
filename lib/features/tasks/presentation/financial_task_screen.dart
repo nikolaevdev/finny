@@ -18,7 +18,8 @@ class FinancialTaskScreen extends ConsumerStatefulWidget {
   final String taskId;
 
   @override
-  ConsumerState<FinancialTaskScreen> createState() => _FinancialTaskScreenState();
+  ConsumerState<FinancialTaskScreen> createState() =>
+      _FinancialTaskScreenState();
 }
 
 class _FinancialTaskScreenState extends ConsumerState<FinancialTaskScreen> {
@@ -29,17 +30,30 @@ class _FinancialTaskScreenState extends ConsumerState<FinancialTaskScreen> {
   FinancialTaskResult? _result;
   FinancialTaskAction? _selectedAction;
   bool _saving = false;
+  bool? _rewardGranted;
 
   Future<void> _finish(FinancialTask task, FinancialTaskResult result) async {
+    bool? rewardGranted;
+
     if (result.isSuccessful && !_saving) {
       setState(() => _saving = true);
       try {
-        await ref.read(gameStateProvider.notifier).completeTask(task.id);
+        rewardGranted = await ref
+            .read(gameStateProvider.notifier)
+            .completeTask(task.id, rewardCoins: task.rewardCoins);
       } finally {
-        if (mounted) setState(() => _saving = false);
+        if (mounted) {
+          setState(() => _saving = false);
+        }
       }
     }
-    if (mounted) setState(() => _result = result);
+
+    if (mounted) {
+      setState(() {
+        _result = result;
+        _rewardGranted = result.isSuccessful ? rewardGranted : null;
+      });
+    }
   }
 
   void _changeAllocation(
@@ -56,14 +70,18 @@ class _FinancialTaskScreenState extends ConsumerState<FinancialTaskScreen> {
       setState(() {
         _allocation = next;
         _result = null;
+        _rewardGranted = null;
       });
     }
   }
 
   void _changeSavings(FinancialTask task, int delta) {
     setState(() {
-      _savingsAmount = (_savingsAmount + delta).clamp(0, task.totalCoins).toInt();
+      _savingsAmount = (_savingsAmount + delta)
+          .clamp(0, task.totalCoins)
+          .toInt();
       _result = null;
+      _rewardGranted = null;
     });
   }
 
@@ -88,6 +106,7 @@ class _FinancialTaskScreenState extends ConsumerState<FinancialTaskScreen> {
     }
 
     final completed = game?.hasCompletedTask(task.id) == true;
+    final rewardReceived = game?.hasReceivedTaskReward(task.id) == true;
 
     return Scaffold(
       appBar: AppBar(
@@ -110,7 +129,11 @@ class _FinancialTaskScreenState extends ConsumerState<FinancialTaskScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _TaskIntro(task: task, completed: completed),
+              _TaskIntro(
+                task: task,
+                completed: completed,
+                rewardReceived: rewardReceived,
+              ),
               const SizedBox(height: AppSpacing.xl),
               switch (task.kind) {
                 FinancialTaskKind.allocation => _buildAllocation(task),
@@ -125,6 +148,7 @@ class _FinancialTaskScreenState extends ConsumerState<FinancialTaskScreen> {
                   allocation: _allocation,
                   savingsAmount: _savingsAmount,
                   selectedAction: _selectedAction,
+                  rewardGranted: _rewardGranted,
                 ),
               ],
             ],
@@ -145,7 +169,10 @@ class _FinancialTaskScreenState extends ConsumerState<FinancialTaskScreen> {
             children: [
               _SummaryRow(label: 'Доступно', value: '${task.totalCoins} монет'),
               const SizedBox(height: AppSpacing.sm),
-              _SummaryRow(label: 'Распределено', value: '${_allocation.allocated} монет'),
+              _SummaryRow(
+                label: 'Распределено',
+                value: '${_allocation.allocated} монет',
+              ),
               const SizedBox(height: AppSpacing.sm),
               _SummaryRow(label: 'Осталось', value: '$remaining монет'),
             ],
@@ -192,7 +219,9 @@ class _FinancialTaskScreenState extends ConsumerState<FinancialTaskScreen> {
         ),
         const SizedBox(height: AppSpacing.lg),
         FinniButton(
-          text: remaining == 0 ? 'Проверить решение' : 'Распредели ещё $remaining',
+          text: remaining == 0
+              ? 'Проверить решение'
+              : 'Распредели ещё $remaining',
           onPressed: remaining == 0 && !_saving
               ? () => _finish(task, task.evaluateAllocation(_allocation))
               : null,
@@ -212,7 +241,10 @@ class _FinancialTaskScreenState extends ConsumerState<FinancialTaskScreen> {
             children: [
               _SummaryRow(label: 'Получено', value: '${task.totalCoins} монет'),
               const SizedBox(height: AppSpacing.sm),
-              _SummaryRow(label: 'В накопления', value: '$_savingsAmount монет'),
+              _SummaryRow(
+                label: 'В накопления',
+                value: '$_savingsAmount монет',
+              ),
               const SizedBox(height: AppSpacing.sm),
               _SummaryRow(label: 'Останется доступно', value: '$left монет'),
             ],
@@ -224,8 +256,12 @@ class _FinancialTaskScreenState extends ConsumerState<FinancialTaskScreen> {
           subtitle: 'Меняй сумму и следи, сколько останется',
           amount: _savingsAmount,
           color: AppColors.save,
-          onMinus: _savingsAmount > 0 ? () => _changeSavings(task, -_step) : null,
-          onPlus: _savingsAmount < task.totalCoins ? () => _changeSavings(task, _step) : null,
+          onMinus: _savingsAmount > 0
+              ? () => _changeSavings(task, -_step)
+              : null,
+          onPlus: _savingsAmount < task.totalCoins
+              ? () => _changeSavings(task, _step)
+              : null,
         ),
         const SizedBox(height: AppSpacing.lg),
         FinniButton(
@@ -259,7 +295,10 @@ class _FinancialTaskScreenState extends ConsumerState<FinancialTaskScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(action.title, style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        action.title,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(action.description),
                     ],
@@ -276,10 +315,15 @@ class _FinancialTaskScreenState extends ConsumerState<FinancialTaskScreen> {
 }
 
 class _TaskIntro extends StatelessWidget {
-  const _TaskIntro({required this.task, required this.completed});
+  const _TaskIntro({
+    required this.task,
+    required this.completed,
+    required this.rewardReceived,
+  });
 
   final FinancialTask task;
   final bool completed;
+  final bool rewardReceived;
 
   @override
   Widget build(BuildContext context) {
@@ -290,16 +334,44 @@ class _TaskIntro extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(task.topic.title, style: Theme.of(context).textTheme.labelLarge),
+                child: Text(
+                  task.topic.title,
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
               ),
               if (completed)
-                const Icon(Icons.check_circle_rounded, color: AppColors.success),
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColors.success,
+                ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
           Text(task.story, style: Theme.of(context).textTheme.bodyLarge),
           const SizedBox(height: AppSpacing.md),
           Text(task.instruction, style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              const Icon(
+                Icons.monetization_on_rounded,
+                color: AppColors.gold,
+                size: 20,
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: Text(
+                  rewardReceived
+                      ? 'Награда получена: ${task.rewardCoins} монет'
+                      : completed
+                      ? 'Награда доступна: пройди успешно ещё раз'
+                      : 'Награда: ${task.rewardCoins} монет',
+                  style: Theme.of(context).textTheme.bodyMedium
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -378,6 +450,7 @@ class _ResultCard extends StatelessWidget {
     required this.allocation,
     required this.savingsAmount,
     required this.selectedAction,
+    required this.rewardGranted,
   });
 
   final FinancialTaskResult result;
@@ -385,6 +458,7 @@ class _ResultCard extends StatelessWidget {
   final BudgetPlan allocation;
   final int savingsAmount;
   final FinancialTaskAction? selectedAction;
+  final bool? rewardGranted;
 
   @override
   Widget build(BuildContext context) {
@@ -398,28 +472,66 @@ class _ResultCard extends StatelessWidget {
           Row(
             children: [
               Icon(
-                result.isSuccessful ? Icons.check_circle_rounded : Icons.lightbulb_outline_rounded,
+                result.isSuccessful
+                    ? Icons.check_circle_rounded
+                    : Icons.lightbulb_outline_rounded,
                 color: result.isSuccessful ? AppColors.success : AppColors.save,
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
-                child: Text(result.title, style: Theme.of(context).textTheme.titleLarge),
+                child: Text(
+                  result.title,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
           if (task.kind == FinancialTaskKind.allocation)
-            Text('Твой план: нужно ${allocation.need}, хочу ${allocation.want}, коплю ${allocation.save} монет.'),
+            Text(
+              'Твой план: нужно ${allocation.need}, хочу ${allocation.want}, коплю ${allocation.save} монет.',
+            ),
           if (task.kind == FinancialTaskKind.savingsAmount)
-            Text('Ты выбрал $savingsAmount монет в накопления. Останется ${task.totalCoins - savingsAmount}.'),
+            Text(
+              'Ты выбрал $savingsAmount монет в накопления. Останется ${task.totalCoins - savingsAmount}.',
+            ),
           if (task.kind == FinancialTaskKind.action && selectedAction != null)
             _ActionConsequences(action: selectedAction!),
           const SizedBox(height: AppSpacing.md),
           Text(result.explanation),
+          if (result.isSuccessful && rewardGranted != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                color: AppColors.gold.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(AppRadius.small),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.monetization_on_rounded,
+                    color: AppColors.gold,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      rewardGranted!
+                          ? 'Награда за задание «${task.title}»: +${task.rewardCoins} монет'
+                          : 'Задание уже пройдено. Награда за него уже получена.',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.md),
           Text(
             result.nextStep,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -435,10 +547,18 @@ class _ActionConsequences extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final parts = <String>[];
-    if (action.balanceDelta != 0) parts.add('баланс ${_signed(action.balanceDelta)}');
-    if (action.savingsDelta != 0) parts.add('накопления ${_signed(action.savingsDelta)}');
-    if (action.careDelta != 0) parts.add('забота ${_signed(action.careDelta)}');
-    if (action.moodDelta != 0) parts.add('настроение ${_signed(action.moodDelta)}');
+    if (action.balanceDelta != 0) {
+      parts.add('баланс ${_signed(action.balanceDelta)}');
+    }
+    if (action.savingsDelta != 0) {
+      parts.add('накопления ${_signed(action.savingsDelta)}');
+    }
+    if (action.careDelta != 0) {
+      parts.add('забота ${_signed(action.careDelta)}');
+    }
+    if (action.moodDelta != 0) {
+      parts.add('настроение ${_signed(action.moodDelta)}');
+    }
 
     return Text('Последствия: ${parts.join(', ')}.');
   }

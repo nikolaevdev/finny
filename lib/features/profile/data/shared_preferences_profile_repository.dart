@@ -21,9 +21,7 @@ class SharedPreferencesProfileRepository implements ProfileRepository {
       final decoded = jsonDecode(rawProfile);
       if (decoded is! Map) return null;
 
-      return PlayerProfile.fromJson(
-        Map<String, Object?>.from(decoded),
-      );
+      return PlayerProfile.fromJson(Map<String, Object?>.from(decoded));
     } on FormatException {
       return null;
     } on TypeError {

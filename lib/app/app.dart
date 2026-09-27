@@ -7,10 +7,7 @@ import 'router.dart';
 import 'theme/app_theme.dart';
 
 class FinniApp extends ConsumerStatefulWidget {
-  const FinniApp({
-    super.key,
-    this.hasLocalProfile = false,
-  });
+  const FinniApp({super.key, this.hasLocalProfile = false});
 
   final bool hasLocalProfile;
 

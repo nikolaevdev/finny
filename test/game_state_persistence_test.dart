@@ -42,6 +42,7 @@ void main() {
       petCare: 70,
       petMood: 60,
       completedTaskIds: ['budget_weekend'],
+      rewardedTaskIds: ['budget_weekend'],
       completedGoalIds: ['tree_house'],
       periodHistory: [
         PeriodSummary(
@@ -74,6 +75,7 @@ void main() {
     expect(restored.ownsItem('bandana'), isTrue);
     expect(restored.petCare, 70);
     expect(restored.completedTaskIds, ['budget_weekend']);
+    expect(restored.rewardedTaskIds, ['budget_weekend']);
     expect(restored.completedGoalIds, ['tree_house']);
     expect(restored.periodHistory, hasLength(1));
     expect(restored.periodHistory.single.endBalance, 90);
@@ -91,11 +93,7 @@ void main() {
       'periodIncome': 120,
       'periodIncomeSource': GameState.defaultPeriodIncomeSource,
       'periodStartBalance': 120,
-      'budgetPlan': {
-        'need': 50,
-        'want': 30,
-        'save': 30,
-      },
+      'budgetPlan': {'need': 50, 'want': 30, 'save': 30},
     });
 
     expect(state.balance, 120);
@@ -117,16 +115,8 @@ void main() {
       'periodIncome': 120,
       'periodIncomeSource': GameState.defaultPeriodIncomeSource,
       'periodStartBalance': 120,
-      'budgetPlan': {
-        'need': 50,
-        'want': 30,
-        'save': 30,
-      },
-      'budgetActuals': {
-        'needSpent': 30,
-        'wantSpent': 25,
-        'saved': 20,
-      },
+      'budgetPlan': {'need': 50, 'want': 30, 'save': 30},
+      'budgetActuals': {'needSpent': 30, 'wantSpent': 25, 'saved': 20},
       'purchases': <Object?>[],
       'ownedItemIds': <Object?>[],
       'petCare': 70,
@@ -162,7 +152,6 @@ void main() {
     expect(state.periodHistory, isEmpty);
     expect(state.periodStatus, PeriodStatus.planned);
   });
-
 
   test('stage 10 state migrates with empty completed goals', () {
     final state = GameState.fromJson({
@@ -205,6 +194,30 @@ void main() {
     expect(state.petMood, 68);
     expect(state.developmentStage, PetDevelopmentStage.growing);
     expect(state.completedGoalIds, isEmpty);
+  });
+
+  test('stage 11 completed tasks can claim the new reward once', () {
+    final state = GameState.fromJson({
+      'schemaVersion': 5,
+      'balance': 80,
+      'savings': 30,
+      'selectedGoal': 'explorer_corner',
+      'currentPeriod': 2,
+      'totalPeriods': 5,
+      'periodStatus': 'notStarted',
+      'completedTaskIds': ['budget_weekend'],
+      'completedGoalIds': <Object?>[],
+    });
+
+    expect(state.completedTaskIds, ['budget_weekend']);
+    expect(state.rewardedTaskIds, isEmpty);
+
+    final rewarded = state.completeTask('budget_weekend', rewardCoins: 10);
+    final repeated = rewarded.completeTask('budget_weekend', rewardCoins: 10);
+
+    expect(rewarded.balance, 90);
+    expect(rewarded.rewardedTaskIds, ['budget_weekend']);
+    expect(identical(repeated, rewarded), isTrue);
   });
 
   test('demo mode initial state starts with goal progress', () {

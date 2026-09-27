@@ -9,10 +9,12 @@ import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_button.dart';
 import '../../../core/widgets/finni_card.dart';
 import '../../../core/widgets/finni_preview.dart';
+import '../../../core/widgets/finni_progress_bar.dart';
 import '../../game/application/game_state_provider.dart';
 import '../../game/domain/game_state.dart';
 import '../../game/domain/pet_progress.dart';
 import '../../profile/application/local_profile_provider.dart';
+import '../../tasks/data/financial_task_catalog.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -45,9 +47,8 @@ class HomeScreen extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   'Создай профиль и Финни, чтобы продолжить.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                  style: Theme.of(context).textTheme.bodyMedium
+                      ?.copyWith(color: AppColors.textSecondary),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppSpacing.xl),
@@ -80,6 +81,9 @@ class HomeScreen extends ConsumerWidget {
     }
 
     final appearance = profile.pet.appearance;
+    final activeTask = FinancialTaskCatalog.firstIncomplete(
+      game.completedTaskIds,
+    );
 
     return Scaffold(
       body: SafeArea(
@@ -137,8 +141,9 @@ class HomeScreen extends ConsumerWidget {
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.surface,
-                              borderRadius:
-                                  BorderRadius.circular(AppRadius.medium),
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.medium,
+                              ),
                               border: Border.all(color: AppColors.divider),
                             ),
                             child: Text(
@@ -186,12 +191,14 @@ class HomeScreen extends ConsumerWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       children: [
                         _ActionTile(
-                          title: game.periodStatus == PeriodStatus.planned ||
+                          title:
+                              game.periodStatus == PeriodStatus.planned ||
                                   game.periodStatus == PeriodStatus.completed
                               ? 'Итог периода'
                               : 'План',
                           subtitle: _planSubtitle(game),
-                          icon: game.periodStatus == PeriodStatus.planned ||
+                          icon:
+                              game.periodStatus == PeriodStatus.planned ||
                                   game.periodStatus == PeriodStatus.completed
                               ? Icons.bar_chart_rounded
                               : Icons.fact_check_outlined,
@@ -210,13 +217,15 @@ class HomeScreen extends ConsumerWidget {
                           subtitle: game.budgetConfirmed
                               ? '${game.purchases.length} покупок'
                               : game.periodCompleted
-                                  ? 'Период завершён'
-                                  : 'После плана',
+                              ? 'Период завершён'
+                              : 'После плана',
                           onTap: () => context.push(AppRoutes.shop),
                         ),
                         _ActionTile(
                           title: 'Задания',
-                          subtitle: '${game.completedTaskIds.length}/6 пройдено',
+                          subtitle: activeTask == null
+                              ? 'Все ${FinancialTaskCatalog.tasks.length} пройдены'
+                              : 'Дальше: ${activeTask.title}',
                           icon: Icons.explore_outlined,
                           color: AppColors.need,
                           onTap: () => context.push(AppRoutes.tasks),
@@ -226,8 +235,8 @@ class HomeScreen extends ConsumerWidget {
                           subtitle: game.allGoalsCompleted
                               ? 'Все цели выполнены'
                               : game.goalReadyToComplete
-                                  ? 'Можно завершить цель'
-                                  : '${game.savings}/${game.selectedGoal.cost}',
+                              ? 'Можно завершить цель'
+                              : '${game.savings}/${game.selectedGoal.cost}',
                           icon: Icons.track_changes_rounded,
                           color: AppColors.save,
                           onTap: () => context.push(AppRoutes.savings),
@@ -260,9 +269,7 @@ class HomeScreen extends ConsumerWidget {
                         padding: const EdgeInsets.all(AppSpacing.md),
                         decoration: BoxDecoration(
                           color: AppColors.purple.withValues(alpha: 0.10),
-                          borderRadius: BorderRadius.circular(
-                            AppRadius.medium,
-                          ),
+                          borderRadius: BorderRadius.circular(AppRadius.medium),
                         ),
                         child: const Row(
                           children: [
@@ -311,27 +318,27 @@ class HomeScreen extends ConsumerWidget {
         'План ещё не готов. Распределим монеты между тремя направлениями.',
       PeriodStatus.planned =>
         'План готов! Когда закончишь с решениями, сравним план с фактом.',
-      PeriodStatus.completed => game.allPeriodsCompleted
-          ? '${game.moodLevel.title}. Все пять периодов пройдены – оставшиеся монеты можно отправить к цели.'
-          : '${game.moodLevel.title}. Период завершён – посмотрим итог и мой рост?',
+      PeriodStatus.completed =>
+        game.allPeriodsCompleted
+            ? '${game.moodLevel.title}. Все пять периодов пройдены – оставшиеся монеты можно отправить к цели.'
+            : '${game.moodLevel.title}. Период завершён – посмотрим итог и мой рост?',
     };
   }
 
   IconData _moodIcon(PetMoodLevel mood) => switch (mood) {
-        PetMoodLevel.quiet => Icons.sentiment_dissatisfied_rounded,
-        PetMoodLevel.calm => Icons.sentiment_neutral_rounded,
-        PetMoodLevel.happy => Icons.sentiment_satisfied_alt_rounded,
-        PetMoodLevel.delighted => Icons.sentiment_very_satisfied_rounded,
-      };
+    PetMoodLevel.quiet => Icons.sentiment_dissatisfied_rounded,
+    PetMoodLevel.calm => Icons.sentiment_neutral_rounded,
+    PetMoodLevel.happy => Icons.sentiment_satisfied_alt_rounded,
+    PetMoodLevel.delighted => Icons.sentiment_very_satisfied_rounded,
+  };
 
   String _planSubtitle(GameState game) {
     return switch (game.periodStatus) {
       PeriodStatus.notStarted => 'Начать период',
       PeriodStatus.planning => 'Продолжить',
       PeriodStatus.planned => 'Сравнить план и факт',
-      PeriodStatus.completed => game.allPeriodsCompleted
-          ? '5 периодов пройдено'
-          : 'Открыть итог',
+      PeriodStatus.completed =>
+        game.allPeriodsCompleted ? '5 периодов пройдено' : 'Открыть итог',
     };
   }
 }
@@ -365,10 +372,7 @@ class _TopHud extends StatelessWidget {
                   size: 28,
                 ),
                 const SizedBox(width: AppSpacing.sm),
-                Text(
-                  '$balance',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                Text('$balance', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(width: AppSpacing.sm),
                 const Text(
                   'монет',
@@ -426,8 +430,8 @@ class _GoalCard extends StatelessWidget {
     final progress = allGoalsCompleted
         ? 1.0
         : goal <= 0
-            ? 0.0
-            : (saved / goal).clamp(0.0, 1.0).toDouble();
+        ? 0.0
+        : (saved / goal).clamp(0.0, 1.0).toDouble();
 
     return FinniCard(
       onTap: onTap,
@@ -449,18 +453,19 @@ class _GoalCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      allGoalsCompleted ? 'Все финансовые цели выполнены' : title,
+                      allGoalsCompleted
+                          ? 'Все финансовые цели выполнены'
+                          : title,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     Text(
                       allGoalsCompleted
                           ? 'В копилке осталось: $saved монет'
                           : goalReady
-                              ? 'На цель уже хватает – можно завершить её'
-                              : 'Коплю: $saved из $goal',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                          ? 'На цель уже хватает – можно завершить её'
+                          : 'Коплю: $saved из $goal',
+                      style: Theme.of(context).textTheme.bodyMedium
+                          ?.copyWith(color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -468,14 +473,10 @@ class _GoalCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.small),
-            child: LinearProgressIndicator(
-              minHeight: 10,
-              value: progress,
-              color: AppColors.need,
-              backgroundColor: AppColors.surfaceSecondary,
-            ),
+          FinniProgressBar(
+            value: progress,
+            color: AppColors.need,
+            semanticLabel: 'Прогресс финансовой цели',
           ),
         ],
       ),
@@ -492,27 +493,27 @@ class _PeriodStatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final (label, icon, color) = switch (game.periodStatus) {
       PeriodStatus.notStarted => (
-          'Период ${game.currentPeriod} из ${game.totalPeriods} ещё не начат',
-          Icons.play_circle_outline_rounded,
-          AppColors.purple,
-        ),
+        'Период ${game.currentPeriod} из ${game.totalPeriods} ещё не начат',
+        Icons.play_circle_outline_rounded,
+        AppColors.purple,
+      ),
       PeriodStatus.planning => (
-          'Период ${game.currentPeriod}: бюджет составляется',
-          Icons.edit_note_rounded,
-          AppColors.save,
-        ),
+        'Период ${game.currentPeriod}: бюджет составляется',
+        Icons.edit_note_rounded,
+        AppColors.save,
+      ),
       PeriodStatus.planned => (
-          'Период ${game.currentPeriod}: план подтверждён',
-          Icons.task_alt_rounded,
-          AppColors.success,
-        ),
+        'Период ${game.currentPeriod}: план подтверждён',
+        Icons.task_alt_rounded,
+        AppColors.success,
+      ),
       PeriodStatus.completed => (
-          game.allPeriodsCompleted
-              ? 'Все ${game.totalPeriods} периодов завершены'
-              : 'Период ${game.currentPeriod}: завершён',
-          Icons.flag_circle_outlined,
-          AppColors.purple,
-        ),
+        game.allPeriodsCompleted
+            ? 'Все ${game.totalPeriods} периодов завершены'
+            : 'Период ${game.currentPeriod}: завершён',
+        Icons.flag_circle_outlined,
+        AppColors.purple,
+      ),
     };
 
     return FinniCard(
@@ -580,9 +581,8 @@ class _DevelopmentCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   stage.shortReason,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -634,19 +634,16 @@ class _PetStat extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w700,
-                ),
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: AppSpacing.sm),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(99),
-            child: LinearProgressIndicator(
-              minHeight: 8,
-              value: value,
-              color: color,
-              backgroundColor: AppColors.surfaceSecondary,
-            ),
+          FinniProgressBar(
+            value: value,
+            color: color,
+            height: 8,
+            semanticLabel: title,
           ),
         ],
       ),
@@ -738,11 +735,7 @@ class _SecondaryAction extends StatelessWidget {
     return OutlinedButton.icon(
       onPressed: onTap,
       icon: Icon(icon, size: 20),
-      label: Text(
-        title,
-        maxLines: 2,
-        textAlign: TextAlign.center,
-      ),
+      label: Text(title, maxLines: 2, textAlign: TextAlign.center),
       style: OutlinedButton.styleFrom(
         minimumSize: const Size.fromHeight(56),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),

@@ -8,10 +8,10 @@ enum FinancialTaskKind { allocation, savingsAmount, action }
 
 extension FinancialTaskTopicText on FinancialTaskTopic {
   String get title => switch (this) {
-        FinancialTaskTopic.budgetPlanning => 'Планирование бюджета',
-        FinancialTaskTopic.savings => 'Сбережения',
-        FinancialTaskTopic.payments => 'Платежи и покупки',
-      };
+    FinancialTaskTopic.budgetPlanning => 'Планирование бюджета',
+    FinancialTaskTopic.savings => 'Сбережения',
+    FinancialTaskTopic.payments => 'Платежи и покупки',
+  };
 }
 
 @immutable
@@ -71,6 +71,7 @@ class FinancialTask {
     this.minimumSavings = 0,
     this.maximumSavings,
     this.actions = const [],
+    this.rewardCoins = 10,
   });
 
   final String id;
@@ -87,6 +88,7 @@ class FinancialTask {
   final int minimumSavings;
   final int? maximumSavings;
   final List<FinancialTaskAction> actions;
+  final int rewardCoins;
 
   FinancialTaskResult evaluateAllocation(BudgetPlan plan) {
     final fullyAllocated = plan.allocated == totalCoins;
@@ -108,7 +110,9 @@ class FinancialTask {
 
     return FinancialTaskResult(
       isSuccessful: successful,
-      title: successful ? 'Получилось сбалансированно' : 'Попробуй другой размер',
+      title: successful
+          ? 'Получилось сбалансированно'
+          : 'Попробуй другой размер',
       explanation: successful ? successExplanation : retryExplanation,
       nextStep: nextStep,
     );
@@ -117,7 +121,9 @@ class FinancialTask {
   FinancialTaskResult evaluateAction(FinancialTaskAction action) {
     return FinancialTaskResult(
       isSuccessful: action.isRecommended,
-      title: action.isRecommended ? 'Разумное решение' : 'Есть более безопасный вариант',
+      title: action.isRecommended
+          ? 'Разумное решение'
+          : 'Есть более безопасный вариант',
       explanation: action.feedback,
       nextStep: nextStep,
     );

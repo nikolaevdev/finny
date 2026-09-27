@@ -7,6 +7,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_card.dart';
+import '../../../core/widgets/finni_progress_bar.dart';
 import '../../game/application/game_state_provider.dart';
 import '../../profile/application/local_profile_provider.dart';
 import '../data/financial_task_catalog.dart';
@@ -66,6 +67,7 @@ class TasksScreen extends ConsumerWidget {
                       _TaskCard(
                         task: task,
                         completed: completed.contains(task.id),
+                        rewardReceived: game.hasReceivedTaskReward(task.id),
                         onTap: () => context.push(AppRoutes.task(task.id)),
                       ),
                       const SizedBox(height: AppSpacing.md),
@@ -104,10 +106,9 @@ class _ProgressCard extends StatelessWidget {
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: AppSpacing.md),
-          LinearProgressIndicator(
+          FinniProgressBar(
             value: progress,
-            minHeight: 10,
-            borderRadius: BorderRadius.circular(AppRadius.small),
+            semanticLabel: 'Прогресс финансовых заданий',
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
@@ -148,11 +149,13 @@ class _TaskCard extends StatelessWidget {
   const _TaskCard({
     required this.task,
     required this.completed,
+    required this.rewardReceived,
     required this.onTap,
   });
 
   final FinancialTask task;
   final bool completed;
+  final bool rewardReceived;
   final VoidCallback onTap;
 
   @override
@@ -176,20 +179,38 @@ class _TaskCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(task.title, style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  task.title,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   _kindLabel(task.kind),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                  style: Theme.of(context).textTheme.bodyMedium
+                      ?.copyWith(color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  rewardReceived
+                      ? 'Награда получена: ${task.rewardCoins} монет'
+                      : completed
+                      ? 'Награда доступна при повторном прохождении'
+                      : 'Награда: ${task.rewardCoins} монет',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 if (completed) ...[
                   const SizedBox(height: AppSpacing.sm),
                   const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.check_circle_rounded, color: AppColors.success, size: 20),
+                      Icon(
+                        Icons.check_circle_rounded,
+                        color: AppColors.success,
+                        size: 20,
+                      ),
                       SizedBox(width: AppSpacing.xs),
                       Text('Пройдено'),
                     ],
@@ -206,19 +227,19 @@ class _TaskCard extends StatelessWidget {
 }
 
 String _kindLabel(FinancialTaskKind kind) => switch (kind) {
-      FinancialTaskKind.allocation => 'Распредели бюджет',
-      FinancialTaskKind.savingsAmount => 'Выбери сумму накопления',
-      FinancialTaskKind.action => 'Прими финансовое решение',
-    };
+  FinancialTaskKind.allocation => 'Распредели бюджет',
+  FinancialTaskKind.savingsAmount => 'Выбери сумму накопления',
+  FinancialTaskKind.action => 'Прими финансовое решение',
+};
 
 Color _topicColor(FinancialTaskTopic topic) => switch (topic) {
-      FinancialTaskTopic.budgetPlanning => AppColors.purple,
-      FinancialTaskTopic.savings => AppColors.save,
-      FinancialTaskTopic.payments => AppColors.blue,
-    };
+  FinancialTaskTopic.budgetPlanning => AppColors.purple,
+  FinancialTaskTopic.savings => AppColors.save,
+  FinancialTaskTopic.payments => AppColors.blue,
+};
 
 IconData _topicIcon(FinancialTaskTopic topic) => switch (topic) {
-      FinancialTaskTopic.budgetPlanning => Icons.fact_check_outlined,
-      FinancialTaskTopic.savings => Icons.savings_outlined,
-      FinancialTaskTopic.payments => Icons.shopping_bag_outlined,
-    };
+  FinancialTaskTopic.budgetPlanning => Icons.fact_check_outlined,
+  FinancialTaskTopic.savings => Icons.savings_outlined,
+  FinancialTaskTopic.payments => Icons.shopping_bag_outlined,
+};

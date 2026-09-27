@@ -1,7 +1,7 @@
 name: finny
 description: "Educational financial literacy game with a virtual pet for children aged 7–11."
 publish_to: 'none'
-version: 0.11.0+11
+version: 0.13.2+15
 
 environment:
   sdk: ^3.13.4
@@ -21,3 +21,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/finni/stage/
+    - assets/images/finni/mood/
+    - assets/images/finni/traits/colors/
+    - assets/images/finni/traits/ears/
+    - assets/images/finni/traits/patterns/

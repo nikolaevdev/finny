@@ -40,8 +40,7 @@ abstract final class AppRoutes {
 
 GoRouter createAppRouter({required bool hasLocalProfile}) {
   return GoRouter(
-    initialLocation:
-        hasLocalProfile ? AppRoutes.home : AppRoutes.onboarding,
+    initialLocation: hasLocalProfile ? AppRoutes.home : AppRoutes.onboarding,
     routes: [
       GoRoute(
         path: AppRoutes.onboarding,
@@ -105,9 +104,8 @@ GoRouter createAppRouter({required bool hasLocalProfile}) {
       ),
       GoRoute(
         path: AppRoutes.taskDetails,
-        builder: (context, state) => FinancialTaskScreen(
-          taskId: state.pathParameters['taskId'] ?? '',
-        ),
+        builder: (context, state) =>
+            FinancialTaskScreen(taskId: state.pathParameters['taskId'] ?? ''),
       ),
     ],
   );

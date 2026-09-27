@@ -38,10 +38,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
 
   Future<void> _changeBudget(BudgetCategory category, int delta) async {
     try {
-      final changed = await ref.read(gameStateProvider.notifier).changeBudget(
-            category: category,
-            delta: delta,
-          );
+      final changed = await ref
+          .read(gameStateProvider.notifier)
+          .changeBudget(category: category, delta: delta);
 
       if (!changed && delta > 0 && mounted) {
         _showMessage('Все доступные монеты уже распределены.');
@@ -57,8 +56,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     setState(() => _isWorking = true);
 
     try {
-      final confirmed =
-          await ref.read(gameStateProvider.notifier).confirmBudget();
+      final confirmed = await ref
+          .read(gameStateProvider.notifier)
+          .confirmBudget();
 
       if (!confirmed && mounted) {
         _showMessage('Сначала распредели хотя бы часть бюджета.');
@@ -75,10 +75,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(
-          content: Text(message),
-          behavior: SnackBarBehavior.floating,
-        ),
+        SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
       );
   }
 
@@ -108,24 +105,24 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                 ),
                 child: switch (game.periodStatus) {
                   PeriodStatus.notStarted => _PeriodStartContent(
-                      game: game,
-                      isWorking: _isWorking,
-                      onStart: _startPeriod,
-                    ),
+                    game: game,
+                    isWorking: _isWorking,
+                    onStart: _startPeriod,
+                  ),
                   PeriodStatus.planning => _BudgetPlanningContent(
-                      game: game,
-                      isWorking: _isWorking,
-                      onChange: _changeBudget,
-                      onConfirm: _confirmBudget,
-                    ),
+                    game: game,
+                    isWorking: _isWorking,
+                    onChange: _changeBudget,
+                    onConfirm: _confirmBudget,
+                  ),
                   PeriodStatus.planned => _BudgetConfirmedContent(
-                      game: game,
-                      onBackHome: () => context.pop(),
-                    ),
+                    game: game,
+                    onBackHome: () => context.pop(),
+                  ),
                   PeriodStatus.completed => _BudgetCompletedContent(
-                      game: game,
-                      onOpenSummary: () => context.go(AppRoutes.periodSummary),
-                    ),
+                    game: game,
+                    onOpenSummary: () => context.push(AppRoutes.periodSummary),
+                  ),
                 },
               ),
       ),
@@ -166,9 +163,8 @@ class _PeriodStartContent extends StatelessWidget {
         Text(
           'Сначала Финни получает игровые монеты. Затем ты решишь, '
           'сколько оставить на нужное, желания и накопления.',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.textSecondary,
-              ),
+          style: Theme.of(context).textTheme.bodyLarge
+              ?.copyWith(color: AppColors.textSecondary),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: AppSpacing.xl),
@@ -213,10 +209,7 @@ class _PeriodStartContent extends StatelessWidget {
         const Text(
           'Это только игровая валюта. В приложении нет реальных денег, '
           'платежей или покупок за реальные средства.',
-          style: TextStyle(
-            fontSize: 14,
-            color: AppColors.textSecondary,
-          ),
+          style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: AppSpacing.xxl),
@@ -337,10 +330,7 @@ class _BudgetPlanningContent extends StatelessWidget {
 }
 
 class _BudgetConfirmedContent extends StatelessWidget {
-  const _BudgetConfirmedContent({
-    required this.game,
-    required this.onBackHome,
-  });
+  const _BudgetConfirmedContent({required this.game, required this.onBackHome});
 
   final GameState game;
   final VoidCallback onBackHome;
@@ -352,11 +342,7 @@ class _BudgetConfirmedContent extends StatelessWidget {
       children: [
         _PeriodBadge(game: game),
         const SizedBox(height: AppSpacing.xl),
-        const Icon(
-          Icons.task_alt_rounded,
-          size: 72,
-          color: AppColors.success,
-        ),
+        const Icon(Icons.task_alt_rounded, size: 72, color: AppColors.success),
         const SizedBox(height: AppSpacing.md),
         Text(
           'План готов',
@@ -367,16 +353,12 @@ class _BudgetConfirmedContent extends StatelessWidget {
         Text(
           'Он сохранён на устройстве. Позже мы сравним план с тем, '
           'как монеты были потрачены на самом деле.',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.textSecondary,
-              ),
+          style: Theme.of(context).textTheme.bodyLarge
+              ?.copyWith(color: AppColors.textSecondary),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: AppSpacing.xl),
-        _PlanSummary(
-          plan: game.budgetPlan,
-          available: game.planningBudget,
-        ),
+        _PlanSummary(plan: game.budgetPlan, available: game.planningBudget),
         const SizedBox(height: AppSpacing.lg),
         if (game.periodIncomeSource != null)
           FinniCard(
@@ -518,10 +500,7 @@ class _AmountCard extends StatelessWidget {
           ),
           const Text(
             'монет',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textSecondary,
-            ),
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
           ),
         ],
       ),
@@ -570,10 +549,7 @@ class _CategoryAllocator extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+                    Text(title, style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       description,
@@ -631,10 +607,7 @@ class _CategoryAllocator extends StatelessWidget {
 }
 
 class _PlanSummary extends StatelessWidget {
-  const _PlanSummary({
-    required this.plan,
-    required this.available,
-  });
+  const _PlanSummary({required this.plan, required this.available});
 
   final BudgetPlan plan;
   final int available;

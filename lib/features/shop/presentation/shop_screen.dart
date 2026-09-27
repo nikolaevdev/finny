@@ -147,10 +147,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(
-          content: Text(message),
-          behavior: SnackBarBehavior.floating,
-        ),
+        SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
       );
   }
 
@@ -172,16 +169,16 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         child: game == null
             ? const Center(child: Text('Игровое состояние не найдено.'))
             : !game.budgetConfirmed
-                ? _PlanRequiredContent(game: game)
-                : _ShopContent(
-                    game: game,
-                    filter: _filter,
-                    isWorking: _isWorking,
-                    onFilterChanged: (value) {
-                      setState(() => _filter = value);
-                    },
-                    onBuy: _openPurchase,
-                  ),
+            ? _PlanRequiredContent(game: game)
+            : _ShopContent(
+                game: game,
+                filter: _filter,
+                isWorking: _isWorking,
+                onFilterChanged: (value) {
+                  setState(() => _filter = value);
+                },
+                onBuy: _openPurchase,
+              ),
       ),
     );
   }
@@ -215,9 +212,8 @@ class _PlanRequiredContent extends StatelessWidget {
             game.periodStarted
                 ? 'План на этот период ещё не подтверждён.'
                 : 'Перед покупками нужно начать период и распределить монеты.',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(context).textTheme.bodyLarge
+                ?.copyWith(color: AppColors.textSecondary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppSpacing.xl),
@@ -385,9 +381,8 @@ class _ShopSummary extends StatelessWidget {
               const Spacer(),
               Text(
                 'Период ${game.currentPeriod} из ${game.totalPeriods}',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+                style: Theme.of(context).textTheme.bodyMedium
+                    ?.copyWith(color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -445,10 +440,7 @@ class _ActualValue extends StatelessWidget {
         children: [
           Text(
             title,
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
+            style: TextStyle(color: color, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
@@ -496,28 +488,18 @@ class _ShopItemCard extends StatelessWidget {
               ),
               child: Text(
                 _categoryTitle(item.category),
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: TextStyle(color: color, fontWeight: FontWeight.w700),
               ),
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          Icon(
-            _itemIcon(item.id),
-            size: 42,
-            color: color,
-          ),
+          Icon(_itemIcon(item.id), size: 42, color: color),
           const SizedBox(height: AppSpacing.sm),
           Text(
             item.title,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           ),
           const Spacer(),
           Text(

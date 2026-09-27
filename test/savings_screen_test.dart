@@ -132,10 +132,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(
-      find.textContaining('Все 5 периодов завершены'),
-      findsOneWidget,
-    );
+    expect(find.textContaining('Все 5 периодов завершены'), findsOneWidget);
 
     await tester.ensureVisible(find.text('Перевести 10 монет'));
     await tester.tap(find.text('Перевести 10 монет'));
@@ -170,14 +167,24 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('На цель уже хватает!'), findsOneWidget);
+    expect(
+      find.textContaining('Можно выполнить «Уголок исследователя»'),
+      findsOneWidget,
+    );
     await tester.tap(find.text('Выполнить цель'));
     await tester.pumpAndSettle();
 
     expect(find.text('Выполнить финансовую цель?'), findsOneWidget);
     expect(repository.state!.completedGoalIds, isEmpty);
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Выполнить цель'));
+    final completionDialog = find.byType(AlertDialog);
+    final confirmGoalButton = find.descendant(
+      of: completionDialog,
+      matching: find.widgetWithText(FilledButton, 'Выполнить цель'),
+    );
+    expect(confirmGoalButton, findsOneWidget);
+
+    await tester.tap(confirmGoalButton);
     await tester.pumpAndSettle();
 
     expect(find.text('Цель выполнена!'), findsOneWidget);
@@ -189,5 +196,4 @@ void main() {
     );
     expect(repository.state!.selectedGoal, GameGoal.treeHouse);
   });
-
 }

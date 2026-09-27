@@ -4,18 +4,15 @@ import 'pet_appearance.dart';
 
 @immutable
 class Pet {
-  const Pet({
-    required this.name,
-    required this.appearance,
-  });
+  const Pet({required this.name, required this.appearance});
 
   final String name;
   final PetAppearance appearance;
 
   Map<String, Object?> toJson() => {
-        'name': name,
-        'appearance': appearance.toJson(),
-      };
+    'name': name,
+    'appearance': appearance.toJson(),
+  };
 
   factory Pet.fromJson(Map<String, Object?> json) {
     final rawName = json['name'];

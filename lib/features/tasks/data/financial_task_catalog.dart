@@ -14,7 +14,8 @@ abstract final class FinancialTaskCatalog {
       minimumSavings: 10,
       successExplanation: 'Сначала обеспечены обязательные расходы, часть монет сохранена, а оставшееся можно потратить на желания.',
       retryExplanation: 'Проверь, хватает ли на еду и осталось ли хотя бы немного на накопления. Хороший бюджет учитывает и сегодняшний день, и будущую цель.',
-      nextStep: 'Попробуй перенести этот принцип в план текущего игрового периода.',
+      nextStep:
+          'Попробуй перенести этот принцип в план текущего игрового периода.',
     ),
     FinancialTask(
       id: 'budget_school_fair',
@@ -28,7 +29,8 @@ abstract final class FinancialTaskCatalog {
       minimumSavings: 20,
       successExplanation: 'Обязательная покупка защищена, накопления растут, и при этом остаётся место для приятных расходов.',
       retryExplanation: 'Если потратить слишком много на желания, может не хватить на материалы или цель. Сначала отдели обязательную часть.',
-      nextStep: 'Перед новой покупкой вспоминай, какие траты уже запланированы.',
+      nextStep:
+          'Перед новой покупкой вспоминай, какие траты уже запланированы.',
     ),
     FinancialTask(
       id: 'savings_gift',
@@ -69,7 +71,8 @@ abstract final class FinancialTaskCatalog {
         FinancialTaskAction(
           id: 'water',
           title: 'Купить воду за 15',
-          description: 'Останется 20 монет, а важная потребность будет закрыта.',
+          description:
+              'Останется 20 монет, а важная потребность будет закрыта.',
           feedback: 'Сначала оплачена нужная вещь. После покупки остаются монеты на другие решения.',
           isRecommended: true,
           balanceDelta: -15,
@@ -131,4 +134,12 @@ abstract final class FinancialTaskCatalog {
 
   static List<FinancialTask> byTopic(FinancialTaskTopic topic) =>
       tasks.where((task) => task.topic == topic).toList(growable: false);
+
+  static FinancialTask? firstIncomplete(Iterable<String> completedTaskIds) {
+    final completed = completedTaskIds.toSet();
+    for (final task in tasks) {
+      if (!completed.contains(task.id)) return task;
+    }
+    return null;
+  }
 }

@@ -14,7 +14,9 @@ void main() {
     expect(titles, contains('Финансовая цель'));
     expect(titles, contains('Игровой период'));
     expect(
-      FinancialGlossary.terms.every((term) => term.description.trim().isNotEmpty),
+      FinancialGlossary.terms.every(
+        (term) => term.description.trim().isNotEmpty,
+      ),
       isTrue,
     );
   });

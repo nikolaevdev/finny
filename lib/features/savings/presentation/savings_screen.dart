@@ -7,6 +7,7 @@ import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_button.dart';
 import '../../../core/widgets/finni_card.dart';
+import '../../../core/widgets/finni_progress_bar.dart';
 import '../../game/application/game_state_provider.dart';
 import '../../game/domain/game_goal.dart';
 import '../../game/domain/game_state.dart';
@@ -79,7 +80,9 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
           children: [
             Text(completedGoal.title),
             const SizedBox(height: AppSpacing.sm),
-            Text('Из накоплений будет использовано ${completedGoal.cost} монет.'),
+            Text(
+              'Из накоплений будет использовано ${completedGoal.cost} монет.',
+            ),
             const SizedBox(height: AppSpacing.sm),
             Text('После выполнения останется: $savingsAfter монет.'),
           ],
@@ -130,7 +133,9 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
                   const SizedBox(height: AppSpacing.md),
                   Text(completedGoal.lesson),
                   const SizedBox(height: AppSpacing.md),
-                  Text('В накоплениях осталось: ${updated?.savings ?? savingsAfter} монет.'),
+                  Text(
+                    'В накоплениях осталось: ${updated?.savings ?? savingsAfter} монет.',
+                  ),
                   if (updated != null && !updated.allGoalsCompleted) ...[
                     const SizedBox(height: AppSpacing.sm),
                     Text('Следующая цель: ${updated.selectedGoal.title}.'),
@@ -285,10 +290,7 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(
-          content: Text(message),
-          behavior: SnackBarBehavior.floating,
-        ),
+        SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
       );
   }
 
@@ -336,7 +338,10 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.emoji_events_rounded, color: AppColors.success),
+                            Icon(
+                              Icons.emoji_events_rounded,
+                              color: AppColors.success,
+                            ),
                             SizedBox(width: AppSpacing.md),
                             Expanded(
                               child: Text(
@@ -388,11 +393,9 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
                     ],
                     _DepositCard(
                       game: game,
-                      amount: _effectiveAmount(
-                        _depositAmount,
-                        game.balance,
-                      ),
-                      enabled: !_isWorking &&
+                      amount: _effectiveAmount(_depositAmount, game.balance),
+                      enabled:
+                          !_isWorking &&
                           game.balance > 0 &&
                           game.canManageSavings,
                       onDecrease: () => _changeDeposit(-_step, game.balance),
@@ -405,17 +408,13 @@ class _SavingsScreenState extends ConsumerState<SavingsScreen> {
                     const SizedBox(height: AppSpacing.xl),
                     _WithdrawalCard(
                       game: game,
-                      amount: _effectiveAmount(
-                        _withdrawAmount,
-                        game.savings,
-                      ),
-                      enabled: !_isWorking &&
+                      amount: _effectiveAmount(_withdrawAmount, game.savings),
+                      enabled:
+                          !_isWorking &&
                           game.savings > 0 &&
                           game.canManageSavings,
-                      onDecrease: () =>
-                          _changeWithdrawal(-_step, game.savings),
-                      onIncrease: () =>
-                          _changeWithdrawal(_step, game.savings),
+                      onDecrease: () => _changeWithdrawal(-_step, game.savings),
+                      onIncrease: () => _changeWithdrawal(_step, game.savings),
                       onAll: () => setState(() {
                         _withdrawAmount = game.savings;
                       }),
@@ -445,10 +444,7 @@ class _GoalSummary extends StatelessWidget {
             children: [
               const CircleAvatar(
                 backgroundColor: AppColors.surfaceSecondary,
-                child: Icon(
-                  Icons.track_changes_rounded,
-                  color: AppColors.save,
-                ),
+                child: Icon(Icons.track_changes_rounded, color: AppColors.save),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
@@ -462,9 +458,8 @@ class _GoalSummary extends StatelessWidget {
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       'Стоимость: ${game.selectedGoal.cost} монет',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                      style: Theme.of(context).textTheme.bodyMedium
+                          ?.copyWith(color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -472,14 +467,11 @@ class _GoalSummary extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.small),
-            child: LinearProgressIndicator(
-              minHeight: 12,
-              value: game.goalProgress,
-              backgroundColor: AppColors.surfaceSecondary,
-              color: AppColors.save,
-            ),
+          FinniProgressBar(
+            value: game.goalProgress,
+            color: AppColors.save,
+            height: 12,
+            semanticLabel: 'Прогресс накопления',
           ),
           const SizedBox(height: AppSpacing.md),
           Row(
@@ -493,7 +485,9 @@ class _GoalSummary extends StatelessWidget {
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: _GoalValue(
-                  label: game.selectedGoalCompleted ? 'Выполнено целей' : 'Осталось',
+                  label: game.selectedGoalCompleted
+                      ? 'Выполнено целей'
+                      : 'Осталось',
                   value: game.selectedGoalCompleted
                       ? '${game.completedGoalIds.length}/${GameGoal.values.length}'
                       : '${game.remainingToGoal}',
@@ -512,7 +506,10 @@ class _GoalSummary extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.celebration_rounded, color: AppColors.success),
+                  const Icon(
+                    Icons.celebration_rounded,
+                    color: AppColors.success,
+                  ),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
@@ -599,15 +596,11 @@ class _GoalValue extends StatelessWidget {
         children: [
           Text(
             label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xs),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text(value, style: Theme.of(context).textTheme.titleLarge),
         ],
       ),
     );
@@ -642,18 +635,17 @@ class _GoalOption extends StatelessWidget {
             completed
                 ? Icons.check_circle_rounded
                 : selected
-                    ? Icons.radio_button_checked_rounded
-                    : Icons.radio_button_off_rounded,
-            color: completed || selected ? AppColors.save : AppColors.textSecondary,
+                ? Icons.radio_button_checked_rounded
+                : Icons.radio_button_off_rounded,
+            color: completed || selected
+                ? AppColors.save
+                : AppColors.textSecondary,
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Text(
               goal.title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
@@ -719,9 +711,8 @@ class _DepositCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             'На балансе: ${game.balance} монет',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(color: AppColors.textSecondary),
           ),
           if (game.periodStatus == PeriodStatus.planning) ...[
             const SizedBox(height: AppSpacing.md),
@@ -740,7 +731,9 @@ class _DepositCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           FinniButton(
-            text: amount > 0 ? 'Перевести $amount монет' : 'Нет монет для перевода',
+            text: amount > 0
+                ? 'Перевести $amount монет'
+                : 'Нет монет для перевода',
             icon: Icons.savings_outlined,
             onPressed: enabled ? onDeposit : null,
           ),
@@ -749,9 +742,8 @@ class _DepositCard extends StatelessWidget {
             Text(
               'По плану на накопления: ${game.budgetPlan.save} · '
               'фактически: ${game.budgetActuals.saved}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],
@@ -793,9 +785,8 @@ class _WithdrawalCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             'В копилке: ${game.savings} монет',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(color: AppColors.textSecondary),
           ),
           if (game.periodStatus == PeriodStatus.planning) ...[
             const SizedBox(height: AppSpacing.md),
@@ -829,10 +820,7 @@ class _WithdrawalCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           const Text(
             'Перед снятием приложение покажет, сколько останется в накоплениях.',
-            style: TextStyle(
-              fontSize: 13,
-              color: AppColors.textSecondary,
-            ),
+            style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
             textAlign: TextAlign.center,
           ),
         ],

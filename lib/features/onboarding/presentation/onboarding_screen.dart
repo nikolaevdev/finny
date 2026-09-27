@@ -121,10 +121,7 @@ class _DecisionCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           FittedBox(
             fit: BoxFit.scaleDown,
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
+            child: Text(title, style: Theme.of(context).textTheme.labelLarge),
           ),
         ],
       ),
