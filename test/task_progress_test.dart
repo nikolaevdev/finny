@@ -4,13 +4,13 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   GameState state() => const GameState(
-    balance: 100,
-    savings: 20,
-    selectedGoal: GameGoal.explorerCorner,
-    currentPeriod: 1,
-    totalPeriods: 5,
-    periodStatus: PeriodStatus.planned,
-  );
+        balance: 100,
+        savings: 20,
+        selectedGoal: GameGoal.explorerCorner,
+        currentPeriod: 1,
+        totalPeriods: 5,
+        periodStatus: PeriodStatus.planned,
+      );
 
   test('first successful completion records task and awards coins once', () {
     final first = state().completeTask('budget_weekend', rewardCoins: 10);

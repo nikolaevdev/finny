@@ -4,7 +4,11 @@ enum BudgetCategory { need, want, save }
 
 @immutable
 class BudgetPlan {
-  const BudgetPlan({this.need = 0, this.want = 0, this.save = 0});
+  const BudgetPlan({
+    this.need = 0,
+    this.want = 0,
+    this.save = 0,
+  });
 
   final int need;
   final int want;
@@ -33,16 +37,32 @@ class BudgetPlan {
     if (next < 0) return this;
 
     final candidate = switch (category) {
-      BudgetCategory.need => BudgetPlan(need: next, want: want, save: save),
-      BudgetCategory.want => BudgetPlan(need: need, want: next, save: save),
-      BudgetCategory.save => BudgetPlan(need: need, want: want, save: next),
+      BudgetCategory.need => BudgetPlan(
+          need: next,
+          want: want,
+          save: save,
+        ),
+      BudgetCategory.want => BudgetPlan(
+          need: need,
+          want: next,
+          save: save,
+        ),
+      BudgetCategory.save => BudgetPlan(
+          need: need,
+          want: want,
+          save: next,
+        ),
     };
 
     if (candidate.allocated > available) return this;
     return candidate;
   }
 
-  Map<String, Object?> toJson() => {'need': need, 'want': want, 'save': save};
+  Map<String, Object?> toJson() => {
+        'need': need,
+        'want': want,
+        'save': save,
+      };
 
   factory BudgetPlan.fromJson(Map<String, Object?> json) {
     int safeAmount(Object? value) {

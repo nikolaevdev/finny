@@ -32,10 +32,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Настройки'), findsOneWidget);
-    await tester.tap(find.text('Звуки интерфейса'));
+    await tester.tap(find.text('Звуки действий'));
     await tester.pumpAndSettle();
 
     expect(settingsRepository.value.soundEnabled, isFalse);
+    expect(settingsRepository.value.musicEnabled, isTrue);
+    await tester.ensureVisible(find.text('Фоновая музыка'));
+    await tester.tap(find.text('Фоновая музыка'));
+    await tester.pumpAndSettle();
+    expect(settingsRepository.value.musicEnabled, isFalse);
   });
 
   testWidgets('destructive profile actions are not exposed in child settings', (

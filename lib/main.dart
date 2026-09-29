@@ -19,15 +19,16 @@ Future<void> main() async {
   final profileRepository = SharedPreferencesProfileRepository(preferences);
   final initialProfile = profileRepository.load();
 
-  final gameStateRepository = SharedPreferencesGameStateRepository(preferences);
+  final gameStateRepository =
+      SharedPreferencesGameStateRepository(preferences);
   final storedGameState = gameStateRepository.load();
   final initialGameState = initialProfile == null
       ? null
-      : storedGameState ?? GameState.initial(demoMode: initialProfile.demoMode);
+      : storedGameState ??
+          GameState.initial(demoMode: initialProfile.demoMode);
 
-  final appSettingsRepository = SharedPreferencesAppSettingsRepository(
-    preferences,
-  );
+  final appSettingsRepository =
+      SharedPreferencesAppSettingsRepository(preferences);
   final initialAppSettings = appSettingsRepository.load();
 
   runApp(
@@ -40,7 +41,9 @@ Future<void> main() async {
         appSettingsRepositoryProvider.overrideWithValue(appSettingsRepository),
         initialAppSettingsProvider.overrideWithValue(initialAppSettings),
       ],
-      child: FinniApp(hasLocalProfile: initialProfile != null),
+      child: FinniApp(
+        hasLocalProfile: initialProfile != null,
+      ),
     ),
   );
 }

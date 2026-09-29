@@ -13,10 +13,10 @@ class PetAppearance {
   final int patternIndex;
 
   Map<String, Object?> toJson() => {
-    'colorIndex': colorIndex,
-    'earsIndex': earsIndex,
-    'patternIndex': patternIndex,
-  };
+        'colorIndex': colorIndex,
+        'earsIndex': earsIndex,
+        'patternIndex': patternIndex,
+      };
 
   factory PetAppearance.fromJson(Map<String, Object?> json) {
     return PetAppearance(

@@ -1,0 +1,407 @@
+{
+  "little_turquoise_pointed_natural": [
+    0,
+    0,
+    1.0
+  ],
+  "little_turquoise_pointed_spots": [
+    0,
+    0,
+    0.993
+  ],
+  "little_turquoise_pointed_stripes": [
+    0,
+    0,
+    0.993
+  ],
+  "little_turquoise_rounded_natural": [
+    9,
+    -12,
+    0.983
+  ],
+  "little_turquoise_rounded_spots": [
+    9,
+    -12,
+    0.983
+  ],
+  "little_turquoise_rounded_stripes": [
+    9,
+    -12,
+    0.983
+  ],
+  "little_turquoise_floppy_natural": [
+    0,
+    0,
+    0.991
+  ],
+  "little_turquoise_floppy_spots": [
+    0,
+    0,
+    0.991
+  ],
+  "little_turquoise_floppy_stripes": [
+    0,
+    0,
+    0.991
+  ],
+  "little_sand_pointed_natural": [
+    0,
+    0,
+    1.0
+  ],
+  "little_sand_pointed_spots": [
+    0,
+    0,
+    0.993
+  ],
+  "little_sand_pointed_stripes": [
+    1,
+    0,
+    0.992
+  ],
+  "little_sand_rounded_natural": [
+    0,
+    0,
+    0.992
+  ],
+  "little_sand_rounded_spots": [
+    0,
+    0,
+    0.992
+  ],
+  "little_sand_rounded_stripes": [
+    0,
+    0,
+    0.992
+  ],
+  "little_sand_floppy_natural": [
+    1,
+    0,
+    0.993
+  ],
+  "little_sand_floppy_spots": [
+    1,
+    0,
+    0.993
+  ],
+  "little_sand_floppy_stripes": [
+    1,
+    0,
+    0.993
+  ],
+  "little_lavender_pointed_natural": [
+    0,
+    0,
+    1.0
+  ],
+  "little_lavender_pointed_spots": [
+    1,
+    0,
+    0.991
+  ],
+  "little_lavender_pointed_stripes": [
+    1,
+    0,
+    0.994
+  ],
+  "little_lavender_rounded_natural": [
+    1,
+    0,
+    0.993
+  ],
+  "little_lavender_rounded_spots": [
+    1,
+    0,
+    0.993
+  ],
+  "little_lavender_rounded_stripes": [
+    1,
+    0,
+    0.993
+  ],
+  "little_lavender_floppy_natural": [
+    1,
+    0,
+    0.992
+  ],
+  "little_lavender_floppy_spots": [
+    1,
+    0,
+    0.992
+  ],
+  "little_lavender_floppy_stripes": [
+    1,
+    0,
+    0.992
+  ],
+  "growing_turquoise_pointed_natural": [
+    0,
+    0,
+    1.0
+  ],
+  "growing_turquoise_pointed_spots": [
+    5,
+    1,
+    0.984
+  ],
+  "growing_turquoise_pointed_stripes": [
+    15,
+    1,
+    0.977
+  ],
+  "growing_turquoise_rounded_natural": [
+    0,
+    0,
+    0.989
+  ],
+  "growing_turquoise_rounded_spots": [
+    0,
+    0,
+    0.989
+  ],
+  "growing_turquoise_rounded_stripes": [
+    0,
+    0,
+    0.989
+  ],
+  "growing_turquoise_floppy_natural": [
+    0,
+    0,
+    0.986
+  ],
+  "growing_turquoise_floppy_spots": [
+    0,
+    0,
+    0.986
+  ],
+  "growing_turquoise_floppy_stripes": [
+    0,
+    0,
+    0.986
+  ],
+  "growing_sand_pointed_natural": [
+    0,
+    0,
+    1.0
+  ],
+  "growing_sand_pointed_spots": [
+    0,
+    1,
+    0.98
+  ],
+  "growing_sand_pointed_stripes": [
+    0,
+    1,
+    0.98
+  ],
+  "growing_sand_rounded_natural": [
+    12,
+    -25,
+    0.992
+  ],
+  "growing_sand_rounded_spots": [
+    12,
+    -25,
+    0.992
+  ],
+  "growing_sand_rounded_stripes": [
+    12,
+    -25,
+    0.992
+  ],
+  "growing_sand_floppy_natural": [
+    1,
+    -7,
+    0.991
+  ],
+  "growing_sand_floppy_spots": [
+    1,
+    -7,
+    0.991
+  ],
+  "growing_sand_floppy_stripes": [
+    1,
+    -7,
+    0.991
+  ],
+  "growing_lavender_pointed_natural": [
+    0,
+    0,
+    1.0
+  ],
+  "growing_lavender_pointed_spots": [
+    0,
+    0,
+    0.994
+  ],
+  "growing_lavender_pointed_stripes": [
+    0,
+    0,
+    0.992
+  ],
+  "growing_lavender_rounded_natural": [
+    15,
+    0,
+    0.98
+  ],
+  "growing_lavender_rounded_spots": [
+    15,
+    0,
+    0.98
+  ],
+  "growing_lavender_rounded_stripes": [
+    15,
+    0,
+    0.98
+  ],
+  "growing_lavender_floppy_natural": [
+    1,
+    -5,
+    0.987
+  ],
+  "growing_lavender_floppy_spots": [
+    1,
+    -5,
+    0.987
+  ],
+  "growing_lavender_floppy_stripes": [
+    1,
+    -5,
+    0.987
+  ],
+  "confident_turquoise_pointed_natural": [
+    0,
+    0,
+    1.0
+  ],
+  "confident_turquoise_pointed_spots": [
+    1,
+    0,
+    0.976
+  ],
+  "confident_turquoise_pointed_stripes": [
+    0,
+    0,
+    0.982
+  ],
+  "confident_turquoise_rounded_natural": [
+    1,
+    0,
+    0.975
+  ],
+  "confident_turquoise_rounded_spots": [
+    1,
+    0,
+    0.975
+  ],
+  "confident_turquoise_rounded_stripes": [
+    1,
+    0,
+    0.975
+  ],
+  "confident_turquoise_floppy_natural": [
+    1,
+    0,
+    0.984
+  ],
+  "confident_turquoise_floppy_spots": [
+    1,
+    0,
+    0.984
+  ],
+  "confident_turquoise_floppy_stripes": [
+    1,
+    0,
+    0.984
+  ],
+  "confident_sand_pointed_natural": [
+    0,
+    0,
+    1.0
+  ],
+  "confident_sand_pointed_spots": [
+    0,
+    0,
+    0.991
+  ],
+  "confident_sand_pointed_stripes": [
+    0,
+    0,
+    0.993
+  ],
+  "confident_sand_rounded_natural": [
+    0,
+    0,
+    0.992
+  ],
+  "confident_sand_rounded_spots": [
+    0,
+    0,
+    0.992
+  ],
+  "confident_sand_rounded_stripes": [
+    0,
+    0,
+    0.992
+  ],
+  "confident_sand_floppy_natural": [
+    1,
+    0,
+    0.993
+  ],
+  "confident_sand_floppy_spots": [
+    1,
+    0,
+    0.993
+  ],
+  "confident_sand_floppy_stripes": [
+    1,
+    0,
+    0.993
+  ],
+  "confident_lavender_pointed_natural": [
+    0,
+    0,
+    1.0
+  ],
+  "confident_lavender_pointed_spots": [
+    0,
+    0,
+    0.995
+  ],
+  "confident_lavender_pointed_stripes": [
+    0,
+    0,
+    0.992
+  ],
+  "confident_lavender_rounded_natural": [
+    16,
+    1,
+    0.976
+  ],
+  "confident_lavender_rounded_spots": [
+    16,
+    1,
+    0.977
+  ],
+  "confident_lavender_rounded_stripes": [
+    16,
+    1,
+    0.977
+  ],
+  "confident_lavender_floppy_natural": [
+    1,
+    0,
+    0.976
+  ],
+  "confident_lavender_floppy_spots": [
+    1,
+    0,
+    0.976
+  ],
+  "confident_lavender_floppy_stripes": [
+    1,
+    0,
+    0.976
+  ]
+}

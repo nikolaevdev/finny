@@ -21,7 +21,9 @@ class SharedPreferencesGameStateRepository implements GameStateRepository {
       final decoded = jsonDecode(rawState);
       if (decoded is! Map) return null;
 
-      return GameState.fromJson(Map<String, Object?>.from(decoded));
+      return GameState.fromJson(
+        Map<String, Object?>.from(decoded),
+      );
     } on FormatException {
       return null;
     } on TypeError {

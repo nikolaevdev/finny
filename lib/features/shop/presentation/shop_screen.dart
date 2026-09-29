@@ -8,6 +8,8 @@ import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_button.dart';
 import '../../../core/widgets/finni_card.dart';
+import '../../../core/widgets/finni_pressable.dart';
+import '../../../core/audio/finni_audio.dart';
 import '../../game/application/game_state_provider.dart';
 import '../../game/domain/game_state.dart';
 import '../data/shop_catalog.dart';
@@ -91,6 +93,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
 
       switch (result) {
         case PurchaseResult.success:
+          FinniAudio.instance.play(AudioCue.purchase);
           final updated = ref.read(gameStateProvider);
           _showMessage(
             'Покупка сохранена. Осталось ${updated?.balance ?? 0} монет. ${item.effectLabel}.',
@@ -117,6 +120,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
   }
 
   Future<void> _showInsufficientFunds(ShopItem item, int balance) async {
+    FinniAudio.instance.play(AudioCue.warning);
     final missing = (item.price - balance).clamp(0, item.price).toInt();
 
     await showDialog<void>(
@@ -147,7 +151,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
   }
 
@@ -169,16 +176,16 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         child: game == null
             ? const Center(child: Text('Игровое состояние не найдено.'))
             : !game.budgetConfirmed
-            ? _PlanRequiredContent(game: game)
-            : _ShopContent(
-                game: game,
-                filter: _filter,
-                isWorking: _isWorking,
-                onFilterChanged: (value) {
-                  setState(() => _filter = value);
-                },
-                onBuy: _openPurchase,
-              ),
+                ? _PlanRequiredContent(game: game)
+                : _ShopContent(
+                    game: game,
+                    filter: _filter,
+                    isWorking: _isWorking,
+                    onFilterChanged: (value) {
+                      setState(() => _filter = value);
+                    },
+                    onBuy: _openPurchase,
+                  ),
       ),
     );
   }
@@ -212,8 +219,9 @@ class _PlanRequiredContent extends StatelessWidget {
             game.periodStarted
                 ? 'План на этот период ещё не подтверждён.'
                 : 'Перед покупками нужно начать период и распределить монеты.',
-            style: Theme.of(context).textTheme.bodyLarge
-                ?.copyWith(color: AppColors.textSecondary),
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppSpacing.xl),
@@ -258,6 +266,8 @@ class _ShopContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          const _ShopSceneHeader(),
+          const SizedBox(height: AppSpacing.md),
           _ShopSummary(game: game),
           const SizedBox(height: AppSpacing.lg),
           Wrap(
@@ -282,15 +292,15 @@ class _ShopContent extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          GridView.builder(
+          LayoutBuilder(builder: (context, constraints) => GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: items.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: constraints.maxWidth < 310 ? 1 : 2,
               mainAxisSpacing: AppSpacing.md,
               crossAxisSpacing: AppSpacing.md,
-              mainAxisExtent: 236,
+              mainAxisExtent: 318,
             ),
             itemBuilder: (context, index) {
               final item = items[index];
@@ -302,7 +312,7 @@ class _ShopContent extends StatelessWidget {
                 onTap: () => onBuy(item),
               );
             },
-          ),
+          )),
           if (game.purchases.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xl),
             Text(
@@ -355,6 +365,48 @@ class _ShopContent extends StatelessWidget {
   }
 }
 
+class _ShopSceneHeader extends StatelessWidget {
+  const _ShopSceneHeader();
+
+  @override
+  Widget build(BuildContext context) => ClipRRect(
+    borderRadius: BorderRadius.circular(26),
+    child: SizedBox(
+      height: 144,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/images/shop/shop_counter_story.webp',
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.low,
+            gaplessPlayback: true,
+          ),
+          DecoratedBox(decoration: BoxDecoration(
+            gradient: LinearGradient(colors: [
+              AppColors.textPrimary.withValues(alpha: 0.82),
+              AppColors.textPrimary.withValues(alpha: 0.24),
+              Colors.transparent,
+            ]),
+          )),
+          Padding(
+            padding: const EdgeInsets.all(18),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Лавка\nприключений',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: Colors.white, fontWeight: FontWeight.w900,
+                  shadows: const [Shadow(color: Colors.black54, blurRadius: 8)],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 class _ShopSummary extends StatelessWidget {
   const _ShopSummary({required this.game});
 
@@ -381,8 +433,9 @@ class _ShopSummary extends StatelessWidget {
               const Spacer(),
               Text(
                 'Период ${game.currentPeriod} из ${game.totalPeriods}',
-                style: Theme.of(context).textTheme.bodyMedium
-                    ?.copyWith(color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
               ),
             ],
           ),
@@ -440,7 +493,10 @@ class _ActualValue extends StatelessWidget {
         children: [
           Text(
             title,
-            style: TextStyle(color: color, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
@@ -488,28 +544,49 @@ class _ShopItemCard extends StatelessWidget {
               ),
               child: Text(
                 _categoryTitle(item.category),
-                style: TextStyle(color: color, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
-          Icon(_itemIcon(item.id), size: 42, color: color),
+          const SizedBox(height: AppSpacing.sm),
+          Container(
+            height: 106,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [
+                color.withValues(alpha: 0.07),
+                color.withValues(alpha: 0.18),
+              ]),
+              borderRadius: BorderRadius.circular(AppRadius.medium),
+            ),
+            child: Image.asset(
+              'assets/images/shop/items/${item.id}.png',
+              fit: BoxFit.contain,
+              filterQuality: FilterQuality.medium,
+              cacheWidth: (170 * MediaQuery.devicePixelRatioOf(context))
+                  .ceil()
+                  .clamp(256, 768)
+                  .toInt(),
+              errorBuilder: (context, error, stackTrace) =>
+                  Icon(_itemIcon(item.id), size: 44, color: color),
+            ),
+          ),
           const SizedBox(height: AppSpacing.sm),
           Text(
             item.title,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-          ),
-          const Spacer(),
-          Text(
-            item.effectLabel,
             style: const TextStyle(
-              fontSize: 14,
-              color: AppColors.textSecondary,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: AppSpacing.sm),
+          const Spacer(),
+          Text(item.effectLabel, maxLines: 2, overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+          const SizedBox(height: 4),
           Row(
             children: [
               const Icon(
@@ -525,12 +602,25 @@ class _ShopItemCard extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const Spacer(),
-              FilledButton.tonal(
+            ],
+          ),
+          const SizedBox(height: 4),
+          SizedBox(
+            height: 36,
+            child: FinniPressable(
+              enabled: !disabled && !purchased,
+              effect: FinniPressEffect.reward,
+              borderRadius: BorderRadius.circular(AppRadius.medium),
+              glowColor: color,
+              child: FilledButton.tonal(
+                style: FilledButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(0, 36),
+                ),
                 onPressed: disabled || purchased ? null : onTap,
                 child: Text(purchased ? 'Куплено' : 'Купить'),
               ),
-            ],
+            ),
           ),
         ],
       ),
@@ -592,7 +682,7 @@ IconData _itemIcon(String itemId) {
     'grooming' => Icons.brush_rounded,
     'sleep_place' => Icons.bed_rounded,
     'ball' => Icons.sports_soccer_rounded,
-    'bandana' => Icons.checkroom_rounded,
+    'explorer_journal' => Icons.menu_book_rounded,
     'plant' => Icons.local_florist_rounded,
     'star_lamp' => Icons.lightbulb_rounded,
     _ => Icons.shopping_bag_outlined,

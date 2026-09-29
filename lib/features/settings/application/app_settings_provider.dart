@@ -4,9 +4,7 @@ import '../domain/app_settings.dart';
 import '../domain/app_settings_repository.dart';
 
 final appSettingsRepositoryProvider = Provider<AppSettingsRepository>((ref) {
-  throw StateError(
-    'appSettingsRepositoryProvider must be overridden at startup',
-  );
+  throw StateError('appSettingsRepositoryProvider must be overridden at startup');
 });
 
 final initialAppSettingsProvider = Provider<AppSettings>(
@@ -21,6 +19,10 @@ class AppSettingsNotifier extends Notifier<AppSettings> {
     await _save(state.copyWith(soundEnabled: value));
   }
 
+  Future<void> setMusicEnabled(bool value) async {
+    await _save(state.copyWith(musicEnabled: value));
+  }
+
   Future<void> setAnimationsEnabled(bool value) async {
     await _save(state.copyWith(animationsEnabled: value));
   }
@@ -31,6 +33,7 @@ class AppSettingsNotifier extends Notifier<AppSettings> {
   }
 }
 
-final appSettingsProvider = NotifierProvider<AppSettingsNotifier, AppSettings>(
+final appSettingsProvider =
+    NotifierProvider<AppSettingsNotifier, AppSettings>(
   AppSettingsNotifier.new,
 );

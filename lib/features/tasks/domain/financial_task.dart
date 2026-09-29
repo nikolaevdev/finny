@@ -8,10 +8,10 @@ enum FinancialTaskKind { allocation, savingsAmount, action }
 
 extension FinancialTaskTopicText on FinancialTaskTopic {
   String get title => switch (this) {
-    FinancialTaskTopic.budgetPlanning => 'Планирование бюджета',
-    FinancialTaskTopic.savings => 'Сбережения',
-    FinancialTaskTopic.payments => 'Платежи и покупки',
-  };
+        FinancialTaskTopic.budgetPlanning => 'Планирование бюджета',
+        FinancialTaskTopic.savings => 'Сбережения',
+        FinancialTaskTopic.payments => 'Платежи и покупки',
+      };
 }
 
 @immutable
@@ -110,9 +110,7 @@ class FinancialTask {
 
     return FinancialTaskResult(
       isSuccessful: successful,
-      title: successful
-          ? 'Получилось сбалансированно'
-          : 'Попробуй другой размер',
+      title: successful ? 'Получилось сбалансированно' : 'Попробуй другой размер',
       explanation: successful ? successExplanation : retryExplanation,
       nextStep: nextStep,
     );
@@ -121,9 +119,7 @@ class FinancialTask {
   FinancialTaskResult evaluateAction(FinancialTaskAction action) {
     return FinancialTaskResult(
       isSuccessful: action.isRecommended,
-      title: action.isRecommended
-          ? 'Разумное решение'
-          : 'Есть более безопасный вариант',
+      title: action.isRecommended ? 'Разумное решение' : 'Есть более безопасный вариант',
       explanation: action.feedback,
       nextStep: nextStep,
     );

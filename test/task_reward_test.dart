@@ -52,10 +52,7 @@ void main() {
     await tester.tap(find.text('Купить воду за 15'));
     await tester.pumpAndSettle();
 
-    expect(
-      find.text('Награда за задание «Перекус перед дорогой»: +10 монет'),
-      findsOneWidget,
-    );
+    expect(find.text('Награда за задание «Перекус перед дорогой»: +10 монет'), findsOneWidget);
     expect(repository.state!.balance, 110);
     expect(repository.state!.hasCompletedTask('payment_snack'), isTrue);
     expect(repository.state!.hasReceivedTaskReward('payment_snack'), isTrue);
@@ -70,9 +67,7 @@ void main() {
     expect(repository.state!.balance, 110);
   });
 
-  testWidgets('completed task reward hint fits a narrow screen', (
-    tester,
-  ) async {
+  testWidgets('completed task reward hint fits a narrow screen', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);

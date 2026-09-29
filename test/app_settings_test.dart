@@ -13,14 +13,30 @@ void main() {
 
     final initial = repository.load();
     expect(initial.soundEnabled, isTrue);
+    expect(initial.musicEnabled, isTrue);
     expect(initial.animationsEnabled, isTrue);
 
     await repository.save(
-      const AppSettings(soundEnabled: false, animationsEnabled: false),
+      const AppSettings(
+        soundEnabled: false,
+        musicEnabled: false,
+        animationsEnabled: false,
+      ),
     );
 
     final restored = repository.load();
     expect(restored.soundEnabled, isFalse);
+    expect(restored.musicEnabled, isFalse);
     expect(restored.animationsEnabled, isFalse);
+  });
+
+  test('previously muted installations keep music silent', () {
+    final restored = AppSettings.fromJson({
+      'soundEnabled': false,
+      'animationsEnabled': true,
+    });
+    expect(restored.soundEnabled, isFalse);
+    expect(restored.musicEnabled, isFalse);
+    expect(restored.animationsEnabled, isTrue);
   });
 }

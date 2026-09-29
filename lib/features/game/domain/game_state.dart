@@ -93,7 +93,17 @@ class GameState {
 
   bool get goalReached => selectedGoalCompleted || remainingToGoal == 0;
 
-  bool ownsItem(String itemId) => ownedItemIds.contains(itemId);
+  bool ownsItem(String itemId) {
+    if (ownedItemIds.contains(itemId)) return true;
+
+    // The bandana was part of older saves, but Finni now wears it by default.
+    // Treat that legacy purchase as ownership of its shop replacement.
+    if (itemId == 'explorer_journal') {
+      return ownedItemIds.contains('bandana');
+    }
+
+    return false;
+  }
 
   bool hasCompletedTask(String taskId) => completedTaskIds.contains(taskId);
 
@@ -126,8 +136,7 @@ class GameState {
 
     if (alreadyCompleted && !shouldReward) return this;
 
-    final nextPeriodStartBalance =
-        shouldReward &&
+    final nextPeriodStartBalance = shouldReward &&
             periodStatus == PeriodStatus.planning &&
             periodStartBalance != null
         ? periodStartBalance! + safeReward
@@ -136,12 +145,10 @@ class GameState {
     return copyWith(
       balance: balance + (shouldReward ? safeReward : 0),
       periodStartBalance: nextPeriodStartBalance,
-      completedTaskIds: alreadyCompleted
-          ? completedTaskIds
-          : [...completedTaskIds, taskId],
-      rewardedTaskIds: shouldReward
-          ? [...rewardedTaskIds, taskId]
-          : rewardedTaskIds,
+      completedTaskIds:
+          alreadyCompleted ? completedTaskIds : [...completedTaskIds, taskId],
+      rewardedTaskIds:
+          shouldReward ? [...rewardedTaskIds, taskId] : rewardedTaskIds,
     );
   }
 
@@ -295,8 +302,7 @@ class GameState {
   }
 
   GameState advanceToNextPeriod() {
-    if (periodStatus != PeriodStatus.completed ||
-        currentPeriod >= totalPeriods) {
+    if (periodStatus != PeriodStatus.completed || currentPeriod >= totalPeriods) {
       return this;
     }
 
@@ -374,27 +380,27 @@ class GameState {
   }
 
   Map<String, Object?> toJson() => {
-    'schemaVersion': schemaVersion,
-    'balance': balance,
-    'savings': savings,
-    'selectedGoal': selectedGoal.id,
-    'currentPeriod': currentPeriod,
-    'totalPeriods': totalPeriods,
-    'periodStatus': periodStatus.name,
-    'periodIncome': periodIncome,
-    'periodIncomeSource': periodIncomeSource,
-    'periodStartBalance': periodStartBalance,
-    'budgetPlan': budgetPlan.toJson(),
-    'budgetActuals': budgetActuals.toJson(),
-    'purchases': purchases.map((purchase) => purchase.toJson()).toList(),
-    'ownedItemIds': ownedItemIds,
-    'petCare': petCare,
-    'petMood': petMood,
-    'completedTaskIds': completedTaskIds,
-    'rewardedTaskIds': rewardedTaskIds,
-    'completedGoalIds': completedGoalIds,
-    'periodHistory': periodHistory.map((summary) => summary.toJson()).toList(),
-  };
+        'schemaVersion': schemaVersion,
+        'balance': balance,
+        'savings': savings,
+        'selectedGoal': selectedGoal.id,
+        'currentPeriod': currentPeriod,
+        'totalPeriods': totalPeriods,
+        'periodStatus': periodStatus.name,
+        'periodIncome': periodIncome,
+        'periodIncomeSource': periodIncomeSource,
+        'periodStartBalance': periodStartBalance,
+        'budgetPlan': budgetPlan.toJson(),
+        'budgetActuals': budgetActuals.toJson(),
+        'purchases': purchases.map((purchase) => purchase.toJson()).toList(),
+        'ownedItemIds': ownedItemIds,
+        'petCare': petCare,
+        'petMood': petMood,
+        'completedTaskIds': completedTaskIds,
+        'rewardedTaskIds': rewardedTaskIds,
+        'completedGoalIds': completedGoalIds,
+        'periodHistory': periodHistory.map((summary) => summary.toJson()).toList(),
+      };
 
   factory GameState.fromJson(Map<String, Object?> json) {
     final versionValue = json['schemaVersion'];
@@ -414,9 +420,7 @@ class GameState {
     }
 
     final rawStatus = json['periodStatus'];
-    final status = PeriodStatus.values.where(
-      (value) => value.name == rawStatus,
-    );
+    final status = PeriodStatus.values.where((value) => value.name == rawStatus);
 
     final rawPlan = json['budgetPlan'];
     final plan = rawPlan is Map
@@ -502,10 +506,9 @@ class GameState {
       balance: safeNonNegative(json['balance']),
       savings: safeNonNegative(json['savings']),
       selectedGoal: GameGoal.fromId(json['selectedGoal']),
-      currentPeriod: safeNonNegative(
-        json['currentPeriod'],
-        fallback: 1,
-      ).clamp(1, requiredPeriods).toInt(),
+      currentPeriod: safeNonNegative(json['currentPeriod'], fallback: 1)
+          .clamp(1, requiredPeriods)
+          .toInt(),
       totalPeriods: safeNonNegative(
         json['totalPeriods'],
         fallback: requiredPeriods,

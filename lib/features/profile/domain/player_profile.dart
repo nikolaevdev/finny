@@ -19,12 +19,12 @@ class PlayerProfile {
   final DateTime createdAt;
 
   Map<String, Object?> toJson() => {
-    'schemaVersion': schemaVersion,
-    'playerName': playerName,
-    'demoMode': demoMode,
-    'pet': pet.toJson(),
-    'createdAt': createdAt.toUtc().toIso8601String(),
-  };
+        'schemaVersion': schemaVersion,
+        'playerName': playerName,
+        'demoMode': demoMode,
+        'pet': pet.toJson(),
+        'createdAt': createdAt.toUtc().toIso8601String(),
+      };
 
   factory PlayerProfile.fromJson(Map<String, Object?> json) {
     final version = json['schemaVersion'];

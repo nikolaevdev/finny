@@ -6,7 +6,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_button.dart';
 import '../../../core/widgets/finni_card.dart';
-import '../../../core/widgets/finni_preview.dart';
+import '../../../core/widgets/finni_character.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -40,7 +40,12 @@ class OnboardingScreen extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: AppSpacing.xl),
-                      const FinniPreview(),
+                      FinniCharacter(
+                        size: constraints.maxHeight < 620 ? 195 : 250,
+                        semanticLabel: 'Финни, бирюзовый малыш',
+                        animate: true,
+                        tapReaction: true,
+                      ),
                       const SizedBox(height: AppSpacing.xl),
                       const _DecisionCards(),
                       const Spacer(),
@@ -121,7 +126,10 @@ class _DecisionCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           FittedBox(
             fit: BoxFit.scaleDown,
-            child: Text(title, style: Theme.of(context).textTheme.labelLarge),
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
           ),
         ],
       ),

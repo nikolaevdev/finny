@@ -184,4 +184,5 @@ void main() {
     expect(gameRepository.state!.completedTaskIds, isEmpty);
     expect(gameRepository.state!.rewardedTaskIds, isEmpty);
   });
+
 }

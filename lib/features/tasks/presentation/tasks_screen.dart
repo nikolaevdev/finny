@@ -7,9 +7,9 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_card.dart';
+import '../../../core/widgets/adventure_banner.dart';
 import '../../../core/widgets/finni_progress_bar.dart';
 import '../../game/application/game_state_provider.dart';
-import '../../profile/application/local_profile_provider.dart';
 import '../data/financial_task_catalog.dart';
 import '../domain/financial_task.dart';
 
@@ -19,7 +19,6 @@ class TasksScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final game = ref.watch(gameStateProvider);
-    final profile = ref.watch(localProfileProvider);
     final completed = FinancialTaskCatalog.tasks
         .where((task) => game?.hasCompletedTask(task.id) == true)
         .map((task) => task.id)
@@ -32,7 +31,7 @@ class TasksScreen extends ConsumerWidget {
           onPressed: () => context.pop(),
           icon: const Icon(Icons.arrow_back_rounded),
         ),
-        title: const Text('Финансовые задания'),
+        title: const Text('Задания'),
       ),
       body: SafeArea(
         top: false,
@@ -54,10 +53,17 @@ class TasksScreen extends ConsumerWidget {
                   AppSpacing.xxl,
                 ),
                 children: [
+                  const AdventureBanner(
+                    title: 'Карта заданий',
+                    icon: Icons.explore_rounded,
+                    color: AppColors.need,
+                    imageAsset: 'assets/images/navigation/task_map_banner.png',
+                    height: 116,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
                   _ProgressCard(
                     completed: completed.length,
                     total: FinancialTaskCatalog.tasks.length,
-                    demoMode: profile?.demoMode == true,
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   for (final topic in FinancialTaskTopic.values) ...[
@@ -85,12 +91,10 @@ class _ProgressCard extends StatelessWidget {
   const _ProgressCard({
     required this.completed,
     required this.total,
-    required this.demoMode,
   });
 
   final int completed;
   final int total;
-  final bool demoMode;
 
   @override
   Widget build(BuildContext context) {
@@ -112,9 +116,7 @@ class _ProgressCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            demoMode
-                ? 'В демо-профиле все задания доступны сразу.'
-                : 'Все задания доступны. Можно проходить их в любом порядке.',
+            'Выбирай любую историю. За первое прохождение получишь монеты.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],
@@ -179,38 +181,32 @@ class _TaskCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  task.title,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                Text(task.title, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   _kindLabel(task.kind),
-                  style: Theme.of(context).textTheme.bodyMedium
-                      ?.copyWith(color: AppColors.textSecondary),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   rewardReceived
                       ? 'Награда получена: ${task.rewardCoins} монет'
                       : completed
-                      ? 'Награда доступна при повторном прохождении'
-                      : 'Награда: ${task.rewardCoins} монет',
+                          ? 'Награда доступна при повторном прохождении'
+                          : 'Награда: ${task.rewardCoins} монет',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w700,
-                  ),
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
                 if (completed) ...[
                   const SizedBox(height: AppSpacing.sm),
                   const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.check_circle_rounded,
-                        color: AppColors.success,
-                        size: 20,
-                      ),
+                      Icon(Icons.check_circle_rounded, color: AppColors.success, size: 20),
                       SizedBox(width: AppSpacing.xs),
                       Text('Пройдено'),
                     ],
@@ -227,19 +223,19 @@ class _TaskCard extends StatelessWidget {
 }
 
 String _kindLabel(FinancialTaskKind kind) => switch (kind) {
-  FinancialTaskKind.allocation => 'Распредели бюджет',
-  FinancialTaskKind.savingsAmount => 'Выбери сумму накопления',
-  FinancialTaskKind.action => 'Прими финансовое решение',
-};
+      FinancialTaskKind.allocation => 'Распредели бюджет',
+      FinancialTaskKind.savingsAmount => 'Выбери сумму накопления',
+      FinancialTaskKind.action => 'Прими финансовое решение',
+    };
 
 Color _topicColor(FinancialTaskTopic topic) => switch (topic) {
-  FinancialTaskTopic.budgetPlanning => AppColors.purple,
-  FinancialTaskTopic.savings => AppColors.save,
-  FinancialTaskTopic.payments => AppColors.blue,
-};
+      FinancialTaskTopic.budgetPlanning => AppColors.purple,
+      FinancialTaskTopic.savings => AppColors.save,
+      FinancialTaskTopic.payments => AppColors.blue,
+    };
 
 IconData _topicIcon(FinancialTaskTopic topic) => switch (topic) {
-  FinancialTaskTopic.budgetPlanning => Icons.fact_check_outlined,
-  FinancialTaskTopic.savings => Icons.savings_outlined,
-  FinancialTaskTopic.payments => Icons.shopping_bag_outlined,
-};
+      FinancialTaskTopic.budgetPlanning => Icons.fact_check_outlined,
+      FinancialTaskTopic.savings => Icons.savings_outlined,
+      FinancialTaskTopic.payments => Icons.shopping_bag_outlined,
+    };

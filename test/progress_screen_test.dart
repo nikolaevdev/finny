@@ -26,9 +26,7 @@ class _FakeGameStateRepository implements GameStateRepository {
 }
 
 void main() {
-  testWidgets('progress screen shows tasks goal and latest period', (
-    tester,
-  ) async {
+  testWidgets('progress screen shows tasks goal and latest period', (tester) async {
     const summary = PeriodSummary(
       period: 1,
       startBalance: 120,
@@ -65,18 +63,26 @@ void main() {
 
     expect(find.text('Мой прогресс'), findsOneWidget);
     expect(find.text('3/6'), findsOneWidget);
-    expect(
-      find.text('Накоплено 25 из 180. Осталось 155 монет.'),
-      findsOneWidget,
-    );
+    expect(find.text('Накоплено 25 из 180. Осталось 155 монет.'), findsOneWidget);
     expect(find.text('Планирование бюджета'), findsOneWidget);
-    expect(find.text('Период 1'), findsWidgets);
-    expect(find.text('План 50  •  Факт 45'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text('Словарик'),
-      220,
-      scrollable: find.byType(Scrollable).first,
-    );
-    expect(find.text('Словарик'), findsOneWidget);
+
+    final listView = find.byType(ListView);
+    expect(listView, findsOneWidget);
+
+    Future<void> scrollUntilBuilt(Finder target) async {
+      for (var i = 0; i < 8 && target.evaluate().isEmpty; i++) {
+        await tester.drag(listView, const Offset(0, -260));
+        await tester.pumpAndSettle();
+      }
+    }
+
+    final periodTitle = find.text('Период 1');
+    await scrollUntilBuilt(periodTitle);
+    expect(periodTitle, findsWidgets);
+    expect(find.text('План 50  •  Факт 45'), findsWidgets);
+
+    final glossary = find.text('Словарик');
+    await scrollUntilBuilt(glossary);
+    expect(glossary, findsOneWidget);
   });
 }

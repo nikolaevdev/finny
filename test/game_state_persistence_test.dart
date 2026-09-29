@@ -73,6 +73,7 @@ void main() {
     expect(restored.purchases, hasLength(1));
     expect(restored.purchases.single.itemId, 'food_set');
     expect(restored.ownsItem('bandana'), isTrue);
+    expect(restored.ownsItem('explorer_journal'), isTrue);
     expect(restored.petCare, 70);
     expect(restored.completedTaskIds, ['budget_weekend']);
     expect(restored.rewardedTaskIds, ['budget_weekend']);
@@ -93,7 +94,11 @@ void main() {
       'periodIncome': 120,
       'periodIncomeSource': GameState.defaultPeriodIncomeSource,
       'periodStartBalance': 120,
-      'budgetPlan': {'need': 50, 'want': 30, 'save': 30},
+      'budgetPlan': {
+        'need': 50,
+        'want': 30,
+        'save': 30,
+      },
     });
 
     expect(state.balance, 120);
@@ -115,8 +120,16 @@ void main() {
       'periodIncome': 120,
       'periodIncomeSource': GameState.defaultPeriodIncomeSource,
       'periodStartBalance': 120,
-      'budgetPlan': {'need': 50, 'want': 30, 'save': 30},
-      'budgetActuals': {'needSpent': 30, 'wantSpent': 25, 'saved': 20},
+      'budgetPlan': {
+        'need': 50,
+        'want': 30,
+        'save': 30,
+      },
+      'budgetActuals': {
+        'needSpent': 30,
+        'wantSpent': 25,
+        'saved': 20,
+      },
       'purchases': <Object?>[],
       'ownedItemIds': <Object?>[],
       'petCare': 70,
@@ -152,6 +165,7 @@ void main() {
     expect(state.periodHistory, isEmpty);
     expect(state.periodStatus, PeriodStatus.planned);
   });
+
 
   test('stage 10 state migrates with empty completed goals', () {
     final state = GameState.fromJson({
@@ -195,6 +209,7 @@ void main() {
     expect(state.developmentStage, PetDevelopmentStage.growing);
     expect(state.completedGoalIds, isEmpty);
   });
+
 
   test('stage 11 completed tasks can claim the new reward once', () {
     final state = GameState.fromJson({

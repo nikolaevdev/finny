@@ -3,35 +3,35 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'app_radius.dart';
 import 'app_typography.dart';
+import 'finni_motion_theme.dart';
 
 abstract final class AppTheme {
   static ThemeData light({
     bool soundEnabled = true,
     bool animationsEnabled = true,
   }) {
-    final colorScheme =
-        ColorScheme.fromSeed(
-          seedColor: AppColors.purple,
-          brightness: Brightness.light,
-          surface: AppColors.surface,
-        ).copyWith(
-          primary: AppColors.purple,
-          onPrimary: AppColors.textOnAccent,
-          primaryContainer: AppColors.purpleSoft,
-          onPrimaryContainer: AppColors.textPrimary,
-          secondary: AppColors.blue,
-          onSecondary: AppColors.textOnAccent,
-          secondaryContainer: AppColors.blueSoft,
-          onSecondaryContainer: AppColors.textPrimary,
-          error: AppColors.error,
-          onError: AppColors.textOnAccent,
-          errorContainer: AppColors.errorSoft,
-          onErrorContainer: AppColors.textPrimary,
-          surface: AppColors.surface,
-          onSurface: AppColors.textPrimary,
-          outline: AppColors.outlineStrong,
-          outlineVariant: AppColors.divider,
-        );
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: AppColors.purple,
+      brightness: Brightness.light,
+      surface: AppColors.surface,
+    ).copyWith(
+      primary: AppColors.purple,
+      onPrimary: AppColors.textOnAccent,
+      primaryContainer: AppColors.purpleSoft,
+      onPrimaryContainer: AppColors.textPrimary,
+      secondary: AppColors.blue,
+      onSecondary: AppColors.textOnAccent,
+      secondaryContainer: AppColors.blueSoft,
+      onSecondaryContainer: AppColors.textPrimary,
+      error: AppColors.error,
+      onError: AppColors.textOnAccent,
+      errorContainer: AppColors.errorSoft,
+      onErrorContainer: AppColors.textPrimary,
+      surface: AppColors.surface,
+      onSurface: AppColors.textPrimary,
+      outline: AppColors.outlineStrong,
+      outlineVariant: AppColors.divider,
+    );
 
     final filledButtonStyle = FilledButton.styleFrom(
       backgroundColor: AppColors.purple,
@@ -40,12 +40,30 @@ abstract final class AppTheme {
       disabledForegroundColor: AppColors.textSecondary,
       minimumSize: const Size(48, 56),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      elevation: 0,
+      elevation: 3,
+      shadowColor: AppColors.purpleDark.withValues(alpha: 0.30),
       textStyle: AppTypography.textTheme.labelLarge,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.medium),
       ),
-    ).copyWith(enableFeedback: soundEnabled);
+    ).copyWith(
+      enableFeedback: soundEnabled,
+      elevation: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) return 0;
+        if (states.contains(WidgetState.pressed)) return 0.5;
+        if (states.contains(WidgetState.hovered)) return 5;
+        return 3;
+      }),
+      overlayColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.pressed)) {
+          return Colors.white.withValues(alpha: 0.16);
+        }
+        if (states.contains(WidgetState.hovered)) {
+          return Colors.white.withValues(alpha: 0.08);
+        }
+        return null;
+      }),
+    );
 
     final outlinedButtonStyle = OutlinedButton.styleFrom(
       foregroundColor: AppColors.textPrimary,
@@ -57,7 +75,18 @@ abstract final class AppTheme {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.medium),
       ),
-    ).copyWith(enableFeedback: soundEnabled);
+    ).copyWith(
+      enableFeedback: soundEnabled,
+      backgroundColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.pressed)) {
+          return AppColors.purpleSoft.withValues(alpha: 0.72);
+        }
+        if (states.contains(WidgetState.hovered)) {
+          return AppColors.purpleSoft.withValues(alpha: 0.36);
+        }
+        return null;
+      }),
+    );
 
     final textButtonStyle = TextButton.styleFrom(
       foregroundColor: AppColors.purpleDark,
@@ -68,11 +97,24 @@ abstract final class AppTheme {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
-    ).copyWith(enableFeedback: soundEnabled);
+    ).copyWith(
+      enableFeedback: soundEnabled,
+      backgroundColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.pressed)) {
+          return AppColors.purpleSoft.withValues(alpha: 0.66);
+        }
+        if (states.contains(WidgetState.hovered)) {
+          return AppColors.purpleSoft.withValues(alpha: 0.30);
+        }
+        return null;
+      }),
+    );
 
     return ThemeData(
       useMaterial3: true,
-      scaffoldBackgroundColor: AppColors.background,
+      splashFactory: InkSparkle.splashFactory,
+      extensions: [FinniMotionTheme(enabled: animationsEnabled)],
+      scaffoldBackgroundColor: Colors.transparent,
       colorScheme: colorScheme,
       dividerColor: AppColors.divider,
       textTheme: AppTypography.textTheme,
@@ -90,8 +132,8 @@ abstract final class AppTheme {
                 TargetPlatform.windows: _NoPageTransitionsBuilder(),
               },
             ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.background,
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.background.withValues(alpha: 0.94),
         foregroundColor: AppColors.textPrimary,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
@@ -104,8 +146,14 @@ abstract final class AppTheme {
           fontWeight: FontWeight.w700,
           color: AppColors.textPrimary,
         ),
-        iconTheme: IconThemeData(color: AppColors.textPrimary, size: 24),
-        actionsIconTheme: IconThemeData(color: AppColors.textPrimary, size: 24),
+        iconTheme: IconThemeData(
+          color: AppColors.textPrimary,
+          size: 24,
+        ),
+        actionsIconTheme: IconThemeData(
+          color: AppColors.textPrimary,
+          size: 24,
+        ),
       ),
       filledButtonTheme: FilledButtonThemeData(style: filledButtonStyle),
       outlinedButtonTheme: OutlinedButtonThemeData(style: outlinedButtonStyle),
@@ -118,7 +166,18 @@ abstract final class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.small),
           ),
-        ).copyWith(enableFeedback: soundEnabled),
+        ).copyWith(
+          enableFeedback: soundEnabled,
+          overlayColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return AppColors.purple.withValues(alpha: 0.16);
+            }
+            if (states.contains(WidgetState.hovered)) {
+              return AppColors.purple.withValues(alpha: 0.08);
+            }
+            return null;
+          }),
+        ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -147,7 +206,10 @@ abstract final class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          borderSide: const BorderSide(color: AppColors.purple, width: 2),
+          borderSide: const BorderSide(
+            color: AppColors.purple,
+            width: 2,
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.medium),

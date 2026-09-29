@@ -43,11 +43,11 @@ void main() {
   });
 
   test('non-repeatable item becomes owned after purchase', () {
-    final item = ShopCatalog.byId('bandana')!;
+    final item = ShopCatalog.byId('explorer_journal')!;
     final first = plannedState().purchase(item);
     final second = first.purchase(item);
 
-    expect(first.ownsItem('bandana'), isTrue);
+    expect(first.ownsItem('explorer_journal'), isTrue);
     expect(first.balance, 100);
     expect(identical(second, first), isTrue);
   });

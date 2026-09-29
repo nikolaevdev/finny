@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+
 @immutable
 class DraftProfile {
   const DraftProfile({
@@ -42,8 +43,14 @@ class DraftProfileNotifier extends Notifier<DraftProfile> {
   @override
   DraftProfile build() => const DraftProfile();
 
-  void setPlayer({required String name, required bool demoMode}) {
-    state = state.copyWith(playerName: name.trim(), demoMode: demoMode);
+  void setPlayer({
+    required String name,
+    required bool demoMode,
+  }) {
+    state = state.copyWith(
+      playerName: name.trim(),
+      demoMode: demoMode,
+    );
   }
 
   void setPet({
@@ -67,5 +74,5 @@ class DraftProfileNotifier extends Notifier<DraftProfile> {
 
 final draftProfileProvider =
     NotifierProvider<DraftProfileNotifier, DraftProfile>(
-      DraftProfileNotifier.new,
-    );
+  DraftProfileNotifier.new,
+);

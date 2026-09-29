@@ -41,8 +41,9 @@ class FinniStatusBadge extends StatelessWidget {
               text,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelMedium
-                  ?.copyWith(color: foregroundColor),
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: foregroundColor,
+                  ),
             ),
           ],
         ),

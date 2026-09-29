@@ -6,6 +6,7 @@ import '../../../app/router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_card.dart';
+import '../../../core/widgets/adventure_banner.dart';
 import '../../../core/widgets/finni_progress_bar.dart';
 import '../../game/application/game_state_provider.dart';
 import '../../game/domain/game_goal.dart';
@@ -40,6 +41,13 @@ class ProgressScreen extends ConsumerWidget {
                 AppSpacing.xxl,
               ),
               children: [
+                const AdventureBanner(
+                  title: 'Мой путь',
+                  icon: Icons.emoji_events_rounded,
+                  color: AppColors.blue,
+                  imageAsset: 'assets/images/navigation/task_map_banner.png',
+                ),
+                const SizedBox(height: AppSpacing.md),
                 _OverviewCard(game: game),
                 const SizedBox(height: AppSpacing.lg),
                 _GoalProgressCard(game: game),
@@ -58,10 +66,7 @@ class ProgressScreen extends ConsumerWidget {
                     children: [
                       CircleAvatar(
                         backgroundColor: AppColors.surfaceSecondary,
-                        child: Icon(
-                          Icons.menu_book_rounded,
-                          color: AppColors.purple,
-                        ),
+                        child: Icon(Icons.menu_book_rounded, color: AppColors.purple),
                       ),
                       SizedBox(width: AppSpacing.md),
                       Expanded(
@@ -70,10 +75,7 @@ class ProgressScreen extends ConsumerWidget {
                           children: [
                             Text(
                               'Словарик',
-                              style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
-                              ),
+                              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
                             ),
                             SizedBox(height: AppSpacing.xs),
                             Text('Коротко объясняем главные финансовые слова.'),
@@ -103,10 +105,7 @@ class _OverviewCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Что уже получилось',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text('Что уже получилось', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.md),
           Row(
             children: [
@@ -157,8 +156,9 @@ class _Metric extends StatelessWidget {
         Text(value, style: Theme.of(context).textTheme.titleMedium),
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall
-              ?.copyWith(color: AppColors.textSecondary),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.textSecondary,
+              ),
           textAlign: TextAlign.center,
         ),
       ],
@@ -182,10 +182,7 @@ class _GoalProgressCard extends StatelessWidget {
               const Icon(Icons.track_changes_rounded, color: AppColors.save),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
-                child: Text(
-                  'Текущая цель',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                child: Text('Текущая цель', style: Theme.of(context).textTheme.titleMedium),
               ),
             ],
           ),
@@ -208,8 +205,8 @@ class _GoalProgressCard extends StatelessWidget {
             game.allGoalsCompleted
                 ? 'Выполнено ${game.completedGoalIds.length} из ${GameGoal.values.length} целей. В копилке осталось ${game.savings} монет.'
                 : game.goalReadyToComplete
-                ? 'На цель уже хватает: ${game.savings} монет. Заверши её в разделе «Накопления».'
-                : 'Накоплено ${game.savings} из ${game.selectedGoal.cost}. Осталось ${game.remainingToGoal} монет.',
+                    ? 'На цель уже хватает: ${game.savings} монет. Заверши её в разделе «Накопления».'
+                    : 'Накоплено ${game.savings} из ${game.selectedGoal.cost}. Осталось ${game.remainingToGoal} монет.',
           ),
           if (!game.allGoalsCompleted && game.completedGoalIds.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xs),
@@ -235,10 +232,7 @@ class _LearningProgressCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Пройденные темы',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text('Пройденные темы', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: AppSpacing.md),
           for (final topic in FinancialTaskTopic.values) ...[
             _TopicProgress(topic: topic, game: game),
@@ -260,9 +254,7 @@ class _TopicProgress extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tasks = FinancialTaskCatalog.byTopic(topic);
-    final completed = tasks
-        .where((task) => game.hasCompletedTask(task.id))
-        .length;
+    final completed = tasks.where((task) => game.hasCompletedTask(task.id)).length;
     final progress = tasks.isEmpty ? 0.0 : completed / tasks.length;
 
     return Column(
@@ -278,9 +270,7 @@ class _TopicProgress extends StatelessWidget {
         FinniProgressBar(
           value: progress,
           height: 8,
-          color: completed == tasks.length
-              ? AppColors.success
-              : AppColors.purple,
+          color: completed == tasks.length ? AppColors.success : AppColors.purple,
           semanticLabel: topic.title,
         ),
       ],
@@ -300,41 +290,22 @@ class _LastPeriodCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Последний период',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text('Последний период', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: AppSpacing.md),
           if (summary == null)
-            const Text(
-              'Заверши первый игровой период – здесь появится его итог.',
-            )
+            const Text('Заверши первый игровой период – здесь появится его итог.')
           else ...[
-            Text(
-              'Период ${summary.period}',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text('Период ${summary.period}', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: AppSpacing.sm),
-            _PlanFactRow(
-              label: 'Нужно',
-              plan: summary.plan.need,
-              fact: summary.actuals.needSpent,
-            ),
-            _PlanFactRow(
-              label: 'Хочу',
-              plan: summary.plan.want,
-              fact: summary.actuals.wantSpent,
-            ),
-            _PlanFactRow(
-              label: 'Коплю',
-              plan: summary.plan.save,
-              fact: summary.actuals.saved,
-            ),
+            _PlanFactRow(label: 'Нужно', plan: summary.plan.need, fact: summary.actuals.needSpent),
+            _PlanFactRow(label: 'Хочу', plan: summary.plan.want, fact: summary.actuals.wantSpent),
+            _PlanFactRow(label: 'Коплю', plan: summary.plan.save, fact: summary.actuals.saved),
             const SizedBox(height: AppSpacing.sm),
             Text(
               'Совпало направлений: ${summary.matchedDirections} из 3. В накоплениях после периода: ${summary.savingsAfter}.',
-              style: Theme.of(context).textTheme.bodyMedium
-                  ?.copyWith(color: AppColors.textSecondary),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
             ),
           ],
         ],
@@ -344,11 +315,7 @@ class _LastPeriodCard extends StatelessWidget {
 }
 
 class _PlanFactRow extends StatelessWidget {
-  const _PlanFactRow({
-    required this.label,
-    required this.plan,
-    required this.fact,
-  });
+  const _PlanFactRow({required this.label, required this.plan, required this.fact});
 
   final String label;
   final int plan;
@@ -380,10 +347,7 @@ class _PeriodHistoryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'История периодов',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text('История периодов', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: AppSpacing.sm),
           for (final summary in items)
             ExpansionTile(
@@ -394,28 +358,17 @@ class _PeriodHistoryCard extends StatelessWidget {
                 '${summary.purchaseCount} покупок • ${summary.matchedDirections}/3 направлений по плану',
               ),
               children: [
-                _PlanFactRow(
-                  label: 'Нужно',
-                  plan: summary.plan.need,
-                  fact: summary.actuals.needSpent,
-                ),
-                _PlanFactRow(
-                  label: 'Хочу',
-                  plan: summary.plan.want,
-                  fact: summary.actuals.wantSpent,
-                ),
-                _PlanFactRow(
-                  label: 'Коплю',
-                  plan: summary.plan.save,
-                  fact: summary.actuals.saved,
-                ),
+                _PlanFactRow(label: 'Нужно', plan: summary.plan.need, fact: summary.actuals.needSpent),
+                _PlanFactRow(label: 'Хочу', plan: summary.plan.want, fact: summary.actuals.wantSpent),
+                _PlanFactRow(label: 'Коплю', plan: summary.plan.save, fact: summary.actuals.saved),
                 const SizedBox(height: AppSpacing.sm),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Осталось ${summary.endBalance} монет • В копилке ${summary.savingsAfter}',
-                    style: Theme.of(context).textTheme.bodySmall
-                        ?.copyWith(color: AppColors.textSecondary),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                   ),
                 ),
               ],

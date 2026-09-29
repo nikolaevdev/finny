@@ -6,8 +6,9 @@ import '../../../app/router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_button.dart';
-import '../../../core/widgets/finni_card.dart';
 import '../../../core/widgets/finni_preview.dart';
+import '../../../core/widgets/finni_character.dart';
+import '../../../core/widgets/finni_pressable.dart';
 import '../../game/application/game_state_provider.dart';
 import '../../profile/application/draft_profile_provider.dart';
 import '../../profile/application/local_profile_provider.dart';
@@ -30,22 +31,7 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
 
   static const _colors = ['Бирюзовый', 'Песочный', 'Лавандовый'];
   static const _ears = ['Заострённые', 'Округлые', 'Висячие'];
-  static const _patterns = ['Без узора', 'Пятна', 'Полосы'];
-  static const _colorAssets = [
-    'assets/images/finni/traits/colors/turquoise.png',
-    'assets/images/finni/traits/colors/sand.png',
-    'assets/images/finni/traits/colors/lavender.png',
-  ];
-  static const _earAssets = [
-    'assets/images/finni/traits/ears/pointed.png',
-    'assets/images/finni/traits/ears/rounded.png',
-    'assets/images/finni/traits/ears/floppy.png',
-  ];
-  static const _patternAssets = [
-    'assets/images/finni/traits/patterns/plain.png',
-    'assets/images/finni/traits/patterns/spots.png',
-    'assets/images/finni/traits/patterns/stripes.png',
-  ];
+  static const _patterns = ['Природный', 'Пятна', 'Полосы'];
 
   @override
   void initState() {
@@ -66,9 +52,7 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
   Future<void> _finish() async {
     if (_isSaving || !(_formKey.currentState?.validate() ?? false)) return;
 
-    ref
-        .read(draftProfileProvider.notifier)
-        .setPet(
+    ref.read(draftProfileProvider.notifier).setPet(
           name: _petNameController.text,
           colorIndex: _colorIndex,
           earsIndex: _earsIndex,
@@ -92,7 +76,9 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           const SnackBar(
-            content: Text('Не удалось сохранить профиль. Попробуй ещё раз.'),
+            content: Text(
+              'Не удалось сохранить профиль. Попробуй ещё раз.',
+            ),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -124,20 +110,25 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  'Собери своего Финни',
-                  style: Theme.of(context).textTheme.headlineLarge,
+                  'Твой спутник',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
-                  'Выбери внешний вид и дай питомцу игровое имя.',
-                  style: Theme.of(context).textTheme.bodyMedium
-                      ?.copyWith(color: AppColors.textSecondary),
+                  'Выбери окрас, форму ушек и узор, затем дай Финни имя.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.md),
                 Center(
                   child: FinniPreview(
+                    size: 240,
+                    animate: true,
                     colorIndex: _colorIndex,
                     earsIndex: _earsIndex,
                     patternIndex: _patternIndex,
@@ -146,11 +137,14 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
                         : _petNameController.text.trim(),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.lg),
                 _ChoiceSection(
                   title: 'Окрас',
                   labels: _colors,
-                  assetPaths: _colorAssets,
+                  trait: _Trait.color,
+                  colorIndex: _colorIndex,
+                  earsIndex: _earsIndex,
+                  patternIndex: _patternIndex,
                   selected: _colorIndex,
                   onSelected: (index) {
                     setState(() => _colorIndex = index);
@@ -160,7 +154,10 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
                 _ChoiceSection(
                   title: 'Ушки',
                   labels: _ears,
-                  assetPaths: _earAssets,
+                  trait: _Trait.ears,
+                  colorIndex: _colorIndex,
+                  earsIndex: _earsIndex,
+                  patternIndex: _patternIndex,
                   selected: _earsIndex,
                   onSelected: (index) {
                     setState(() => _earsIndex = index);
@@ -170,7 +167,10 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
                 _ChoiceSection(
                   title: 'Узор',
                   labels: _patterns,
-                  assetPaths: _patternAssets,
+                  trait: _Trait.pattern,
+                  colorIndex: _colorIndex,
+                  earsIndex: _earsIndex,
+                  patternIndex: _patternIndex,
                   selected: _patternIndex,
                   onSelected: (index) {
                     setState(() => _patternIndex = index);
@@ -200,23 +200,6 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
                   },
                 ),
                 const SizedBox(height: AppSpacing.md),
-                const FinniCard(
-                  color: AppColors.surfaceSecondary,
-                  child: Row(
-                    children: [
-                      Icon(Icons.auto_awesome_rounded, color: AppColors.purple),
-                      SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Text(
-                          'Окрас, форма ушей и узор сохраняются отдельно: '
-                          'доступно 27 комбинаций внешности.',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xl),
                 FinniButton(
                   text: _isSaving ? 'Сохраняем…' : 'Готово',
                   icon: _isSaving ? null : Icons.check_rounded,
@@ -231,18 +214,26 @@ class _PetCreationScreenState extends ConsumerState<PetCreationScreen> {
   }
 }
 
+enum _Trait { color, ears, pattern }
+
 class _ChoiceSection extends StatelessWidget {
   const _ChoiceSection({
     required this.title,
     required this.labels,
-    required this.assetPaths,
+    required this.trait,
+    required this.colorIndex,
+    required this.earsIndex,
+    required this.patternIndex,
     required this.selected,
     required this.onSelected,
   });
 
   final String title;
   final List<String> labels;
-  final List<String> assetPaths;
+  final _Trait trait;
+  final int colorIndex;
+  final int earsIndex;
+  final int patternIndex;
   final int selected;
   final ValueChanged<int> onSelected;
 
@@ -253,27 +244,62 @@ class _ChoiceSection extends StatelessWidget {
       children: [
         Text(title, style: Theme.of(context).textTheme.labelLarge),
         const SizedBox(height: AppSpacing.sm),
-        Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.sm,
+        Row(
           children: [
             for (var i = 0; i < labels.length; i++)
-              ChoiceChip(
-                avatar: ClipOval(
-                  child: Image.asset(
-                    assetPaths[i],
-                    width: 28,
-                    height: 28,
-                    fit: BoxFit.cover,
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: i == labels.length - 1 ? 0 : 8),
+                  child: FinniPressable(
+                    effect: FinniPressEffect.card,
+                    borderRadius: BorderRadius.circular(20),
+                    glowColor: selected == i ? AppColors.purple : null,
+                    child: InkWell(
+                      onTap: () => onSelected(i),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                      padding: const EdgeInsets.fromLTRB(5, 6, 5, 8),
+                      decoration: BoxDecoration(
+                        color: selected == i
+                            ? AppColors.purple.withValues(alpha: 0.14)
+                            : AppColors.surface.withValues(alpha: 0.92),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: selected == i ? AppColors.purple : AppColors.divider,
+                          width: selected == i ? 2 : 1,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 72,
+                            width: double.infinity,
+                            child: FittedBox(
+                              fit: BoxFit.contain,
+                              child: FinniCharacter(
+                                size: 92,
+                                colorIndex: trait == _Trait.color ? i : colorIndex,
+                                earsIndex: trait == _Trait.ears ? i : earsIndex,
+                                patternIndex: trait == _Trait.pattern ? i : patternIndex,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            labels[i],
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   ),
                 ),
-                label: Text(labels[i]),
-                selected: selected == i,
-                selectedColor: AppColors.purple.withValues(alpha: 0.16),
-                side: BorderSide(
-                  color: selected == i ? AppColors.purple : AppColors.divider,
-                ),
-                onSelected: (_) => onSelected(i),
               ),
           ],
         ),

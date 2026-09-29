@@ -48,8 +48,8 @@ abstract final class ShopCatalog {
       moodDelta: 8,
     ),
     ShopItem(
-      id: 'bandana',
-      title: 'Бандана',
+      id: 'explorer_journal',
+      title: 'Дневник исследователя',
       price: 20,
       category: ShopCategory.want,
       effectLabel: 'Настроение +6',

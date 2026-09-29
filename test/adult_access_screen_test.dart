@@ -15,8 +15,9 @@ void main() {
         ),
         GoRoute(
           path: AppRoutes.adult,
-          builder: (context, state) =>
-              const Scaffold(body: Text('Раздел открыт')),
+          builder: (context, state) => const Scaffold(
+            body: Text('Раздел открыт'),
+          ),
         ),
       ],
     );

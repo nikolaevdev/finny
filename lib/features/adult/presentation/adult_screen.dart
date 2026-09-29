@@ -7,6 +7,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_card.dart';
+import '../../../core/widgets/adventure_banner.dart';
 import '../../../core/widgets/finni_progress_bar.dart';
 import '../../game/application/game_state_provider.dart';
 import '../../game/domain/game_state.dart';
@@ -110,9 +111,7 @@ class _AdultScreenState extends ConsumerState<AdultScreen> {
       context.go(AppRoutes.onboarding);
     } catch (_) {
       if (mounted) {
-        _showMessage(
-          'Не удалось удалить локальные данные. Попробуйте ещё раз.',
-        );
+        _showMessage('Не удалось удалить локальные данные. Попробуйте ещё раз.');
         setState(() => _isWorking = false);
       }
     }
@@ -122,7 +121,10 @@ class _AdultScreenState extends ConsumerState<AdultScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
   }
 
@@ -150,6 +152,12 @@ class _AdultScreenState extends ConsumerState<AdultScreen> {
                 AppSpacing.xxl,
               ),
               children: [
+                const AdventureBanner(
+                  title: 'Путь Финни',
+                  icon: Icons.family_restroom_rounded,
+                  imageAsset: 'assets/images/goals/dream_cottage_story.webp',
+                ),
+                const SizedBox(height: AppSpacing.md),
                 const _PurposeCard(),
                 const SizedBox(height: AppSpacing.lg),
                 _OverallProgressCard(game: game),
@@ -187,10 +195,7 @@ class _PurposeCard extends StatelessWidget {
             children: [
               const CircleAvatar(
                 backgroundColor: AppColors.surfaceSecondary,
-                child: Icon(
-                  Icons.family_restroom_rounded,
-                  color: AppColors.purple,
-                ),
+                child: Icon(Icons.family_restroom_rounded, color: AppColors.purple),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
@@ -232,8 +237,8 @@ class _OverallProgressCard extends StatelessWidget {
     final periodProgress = game.totalPeriods <= 0
         ? 0.0
         : (game.periodHistory.length / game.totalPeriods)
-              .clamp(0.0, 1.0)
-              .toDouble();
+            .clamp(0.0, 1.0)
+            .toDouble();
 
     return FinniCard(
       child: Column(
@@ -256,7 +261,10 @@ class _OverallProgressCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _ValueTile(title: 'Накоплено', value: '${game.savings}'),
+                child: _ValueTile(
+                  title: 'Накоплено',
+                  value: '${game.savings}',
+                ),
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
@@ -284,10 +292,7 @@ class _TopicProgressCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Пройденные темы',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text('Пройденные темы', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.md),
           for (final topic in FinancialTaskTopic.values) ...[
             _TopicRow(topic: topic, game: game),
@@ -315,10 +320,7 @@ class _TopicRow extends StatelessWidget {
 
     return Row(
       children: [
-        const Icon(
-          Icons.check_circle_outline_rounded,
-          color: AppColors.success,
-        ),
+        const Icon(Icons.check_circle_outline_rounded, color: AppColors.success),
         const SizedBox(width: AppSpacing.md),
         Expanded(child: Text(topic.title)),
         Text(
@@ -431,10 +433,7 @@ class _DataManagementCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'Управление данными',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text('Управление данными', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.sm),
           const Text(
             'Сброс и удаление доступны только в разделе для взрослого.',
@@ -494,14 +493,15 @@ class _ProgressLine extends StatelessWidget {
         Row(
           children: [
             Expanded(child: Text(label)),
-            Text(
-              valueLabel,
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
+            Text(valueLabel, style: const TextStyle(fontWeight: FontWeight.w700)),
           ],
         ),
         const SizedBox(height: AppSpacing.sm),
-        FinniProgressBar(value: value, height: 9, semanticLabel: label),
+        FinniProgressBar(
+          value: value,
+          height: 9,
+          semanticLabel: label,
+        ),
       ],
     );
   }

@@ -6,6 +6,7 @@ import '../../../app/router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_card.dart';
+import '../../../core/widgets/adventure_banner.dart';
 import '../application/app_settings_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -39,11 +40,28 @@ class SettingsScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _setMusic(
+    BuildContext context,
+    WidgetRef ref,
+    bool value,
+  ) async {
+    try {
+      await ref.read(appSettingsProvider.notifier).setMusicEnabled(value);
+    } catch (_) {
+      if (context.mounted) {
+        _showMessage(context, 'Не удалось сохранить настройку.');
+      }
+    }
+  }
+
   void _showMessage(BuildContext context, String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
   }
 
@@ -68,6 +86,12 @@ class SettingsScreen extends ConsumerWidget {
           AppSpacing.xxl,
         ),
         children: [
+          const AdventureBanner(
+            title: 'Уютная настройка',
+            icon: Icons.tune_rounded,
+            imageAsset: 'assets/images/shop/shop_counter_story.webp',
+          ),
+          const SizedBox(height: AppSpacing.md),
           Text('Комфорт', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: AppSpacing.md),
           FinniCard(
@@ -81,11 +105,26 @@ class SettingsScreen extends ConsumerWidget {
                     Icons.volume_up_outlined,
                     color: AppColors.purple,
                   ),
-                  title: const Text('Звуки интерфейса'),
+                  title: const Text('Звуки действий'),
                   subtitle: const Text(
-                    'Звуковая обратная связь при нажатии на элементы управления.',
+                    'Нажатия, покупки и результаты заданий.',
                   ),
                   onChanged: (value) => _setSound(context, ref, value),
+                ),
+                const Divider(),
+                SwitchListTile.adaptive(
+                  contentPadding: EdgeInsets.zero,
+                  value: settings.musicEnabled,
+                  activeTrackColor: AppColors.purple,
+                  secondary: const Icon(
+                    Icons.music_note_rounded,
+                    color: AppColors.purple,
+                  ),
+                  title: const Text('Фоновая музыка'),
+                  subtitle: const Text(
+                    'Спокойная мелодия во время игры.',
+                  ),
+                  onChanged: (value) => _setMusic(context, ref, value),
                 ),
                 const Divider(),
                 SwitchListTile.adaptive(
@@ -114,10 +153,7 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 CircleAvatar(
                   backgroundColor: AppColors.surfaceSecondary,
-                  child: Icon(
-                    Icons.help_outline_rounded,
-                    color: AppColors.purple,
-                  ),
+                  child: Icon(Icons.help_outline_rounded, color: AppColors.purple),
                 ),
                 SizedBox(width: AppSpacing.md),
                 Expanded(
@@ -126,10 +162,7 @@ class SettingsScreen extends ConsumerWidget {
                     children: [
                       Text(
                         'Как играть',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
                       ),
                       SizedBox(height: AppSpacing.xs),
                       Text('Повторить короткую подсказку по игровому циклу.'),

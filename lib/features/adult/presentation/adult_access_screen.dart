@@ -6,6 +6,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_button.dart';
 import '../../../core/widgets/finni_card.dart';
+import '../../../core/widgets/adventure_banner.dart';
 
 class AdultAccessScreen extends StatefulWidget {
   const AdultAccessScreen({super.key});
@@ -60,22 +61,18 @@ class _AdultAccessScreenState extends State<AdultAccessScreen> {
             AppSpacing.xxl,
           ),
           children: [
-            const Icon(
-              Icons.supervisor_account_outlined,
-              size: 64,
-              color: AppColors.purple,
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Text(
-              'Небольшая проверка',
-              style: Theme.of(context).textTheme.headlineMedium,
-              textAlign: TextAlign.center,
+            const AdventureBanner(
+              title: 'Раздел для взрослого',
+              icon: Icons.family_restroom_rounded,
+              imageAsset: 'assets/images/goals/dream_cottage_story.webp',
+              height: 112,
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Этот раздел предназначен для взрослого. Решите простой пример, чтобы продолжить.',
-              style: Theme.of(context).textTheme.bodyMedium
-                  ?.copyWith(color: AppColors.textSecondary),
+              'Здесь можно посмотреть прогресс и управлять данными игры. Решите пример, чтобы открыть раздел.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.xl),
@@ -85,7 +82,7 @@ class _AdultAccessScreenState extends State<AdultAccessScreen> {
                 children: [
                   Text(
                     '8 + 7 = ?',
-                    style: Theme.of(context).textTheme.headlineMedium,
+                    style: Theme.of(context).textTheme.titleLarge,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: AppSpacing.lg),

@@ -7,6 +7,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_button.dart';
 import '../../../core/widgets/finni_card.dart';
+import '../../../core/widgets/adventure_banner.dart';
 import '../application/draft_profile_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -38,9 +39,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void _continue() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    ref
-        .read(draftProfileProvider.notifier)
-        .setPlayer(name: _nameController.text, demoMode: _demoMode);
+    ref.read(draftProfileProvider.notifier).setPlayer(
+          name: _nameController.text,
+          demoMode: _demoMode,
+        );
 
     context.push(AppRoutes.pet);
   }
@@ -64,17 +66,26 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     icon: const Icon(Icons.arrow_back_rounded),
                   ),
                 ),
+                const SizedBox(height: AppSpacing.md),
+                const AdventureBanner(
+                  title: 'Начало истории',
+                  icon: Icons.auto_stories_rounded,
+                  imageAsset: 'assets/images/home/explorer_room_story.webp',
+                  height: 104,
+                ),
                 const SizedBox(height: AppSpacing.lg),
                 Text(
                   'Давай познакомимся',
-                  style: Theme.of(context).textTheme.headlineLarge,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'Для игрового профиля достаточно имени. '
-                  'Телефон, e-mail и регистрация не нужны.',
-                  style: Theme.of(context).textTheme.bodyMedium
-                      ?.copyWith(color: AppColors.textSecondary),
+                  'Как к тебе обращаться в игре? Достаточно имени.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 Text(
@@ -107,12 +118,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     value: _demoMode,
                     activeTrackColor: AppColors.purple,
                     title: const Text(
-                      'Демо-профиль',
+                      'Быстрый старт',
                       style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                     subtitle: const Text(
-                      'Заготовка для быстрого прохождения '
-                      'экспертного сценария.',
+                      'Начать со 120 монетами в копилке.',
                     ),
                     secondary: const Icon(
                       Icons.science_outlined,
@@ -135,8 +145,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     SizedBox(width: AppSpacing.sm),
                     Expanded(
                       child: Text(
-                        'Профиль и выбранный Финни сохраняются локально '
-                        'только на этом устройстве.',
+                        'Имя и игровой прогресс останутся на этом устройстве.',
                         style: TextStyle(
                           fontSize: 16,
                           color: AppColors.textSecondary,

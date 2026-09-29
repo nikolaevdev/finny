@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_card.dart';
+import '../../../core/widgets/adventure_banner.dart';
 import '../data/financial_glossary.dart';
 
 class GlossaryScreen extends StatelessWidget {
@@ -27,10 +28,17 @@ class GlossaryScreen extends StatelessWidget {
           AppSpacing.lg,
           AppSpacing.xxl,
         ),
-        itemCount: FinancialGlossary.terms.length,
+        itemCount: FinancialGlossary.terms.length + 1,
         separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
         itemBuilder: (context, index) {
-          final term = FinancialGlossary.terms[index];
+          if (index == 0) {
+            return const AdventureBanner(
+              title: 'Словарь путешественника',
+              icon: Icons.menu_book_rounded,
+              imageAsset: 'assets/images/navigation/task_map_banner.png',
+            );
+          }
+          final term = FinancialGlossary.terms[index - 1];
           return FinniCard(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,15 +52,13 @@ class GlossaryScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        term.title,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                      Text(term.title, style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         term.description,
-                        style: Theme.of(context).textTheme.bodyMedium
-                            ?.copyWith(color: AppColors.textSecondary),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
                       ),
                     ],
                   ),

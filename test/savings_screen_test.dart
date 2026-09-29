@@ -132,7 +132,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Все 5 периодов завершены'), findsOneWidget);
+    expect(
+      find.textContaining('Все 5 периодов завершены'),
+      findsOneWidget,
+    );
 
     await tester.ensureVisible(find.text('Перевести 10 монет'));
     await tester.tap(find.text('Перевести 10 монет'));
@@ -171,6 +174,8 @@ void main() {
       find.textContaining('Можно выполнить «Уголок исследователя»'),
       findsOneWidget,
     );
+    await tester.ensureVisible(find.text('Выполнить цель'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Выполнить цель'));
     await tester.pumpAndSettle();
 
@@ -196,4 +201,5 @@ void main() {
     );
     expect(repository.state!.selectedGoal, GameGoal.treeHouse);
   });
+
 }

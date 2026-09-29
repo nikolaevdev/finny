@@ -20,7 +20,11 @@ enum PurchaseResult {
   alreadyPurchased,
 }
 
-enum GoalCompletionResult { success, notReady, alreadyCompleted }
+enum GoalCompletionResult {
+  success,
+  notReady,
+  alreadyCompleted,
+}
 
 enum SavingsTransferResult {
   success,
@@ -92,7 +96,9 @@ class GameStateNotifier extends Notifier<GameState?> {
     if (current.budgetPlan.allocated <= 0) return false;
     if (current.budgetPlan.allocated > current.planningBudget) return false;
 
-    await _save(current.copyWith(periodStatus: PeriodStatus.planned));
+    await _save(
+      current.copyWith(periodStatus: PeriodStatus.planned),
+    );
     return true;
   }
 
@@ -222,7 +228,10 @@ class GameStateNotifier extends Notifier<GameState?> {
     return true;
   }
 
-  Future<bool> completeTask(String taskId, {required int rewardCoins}) async {
+  Future<bool> completeTask(
+    String taskId, {
+    required int rewardCoins,
+  }) async {
     final current = state;
     if (current == null || taskId.isEmpty || rewardCoins < 0) return false;
 

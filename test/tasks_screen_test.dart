@@ -30,9 +30,7 @@ class _FakeGameStateRepository implements GameStateRepository {
 }
 
 void main() {
-  testWidgets('tasks screen shows required topics and progress', (
-    tester,
-  ) async {
+  testWidgets('tasks screen shows required topics and progress', (tester) async {
     const game = GameState(
       balance: 100,
       savings: 20,
@@ -66,11 +64,11 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Финансовые задания'), findsOneWidget);
+    expect(find.text('Задания'), findsOneWidget);
     expect(find.text('Пройдено 1 из 6'), findsOneWidget);
     expect(find.text('Планирование бюджета'), findsOneWidget);
     expect(
-      find.text('В демо-профиле все задания доступны сразу.'),
+      find.text('Выбирай любую историю. За первое прохождение получишь монеты.'),
       findsOneWidget,
     );
   });

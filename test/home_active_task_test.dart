@@ -27,7 +27,7 @@ class _FakeGameRepository implements GameStateRepository {
 }
 
 void main() {
-  testWidgets('home shows the next incomplete financial task', (tester) async {
+  testWidgets('home keeps financial tasks in the tasks section', (tester) async {
     const game = GameState(
       balance: 120,
       savings: 20,
@@ -43,7 +43,11 @@ void main() {
       demoMode: false,
       pet: const Pet(
         name: 'Финни',
-        appearance: PetAppearance(colorIndex: 0, earsIndex: 0, patternIndex: 0),
+        appearance: PetAppearance(
+          colorIndex: 0,
+          earsIndex: 0,
+          patternIndex: 0,
+        ),
       ),
       createdAt: DateTime.utc(2026, 9, 27),
     );
@@ -51,9 +55,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          gameStateRepositoryProvider.overrideWithValue(
-            _FakeGameRepository(game),
-          ),
+          gameStateRepositoryProvider.overrideWithValue(_FakeGameRepository(game)),
           initialGameStateProvider.overrideWithValue(game),
           initialProfileProvider.overrideWithValue(profile),
         ],
@@ -62,13 +64,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(
-      find.text('Дальше: Ярмарка изобретателей'),
-      220,
-      scrollable: find.byType(Scrollable).first,
-    );
-
+    // The next task title intentionally lives in the Tasks section rather than
+    // consuming space on the main character scene.
+    expect(find.text('Дальше: Ярмарка изобретателей'), findsNothing);
     expect(find.text('Задания'), findsOneWidget);
-    expect(find.text('Дальше: Ярмарка изобретателей'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

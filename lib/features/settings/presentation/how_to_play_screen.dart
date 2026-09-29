@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_card.dart';
+import '../../../core/widgets/adventure_banner.dart';
 
 class HowToPlayScreen extends StatelessWidget {
   const HowToPlayScreen({super.key});
@@ -27,6 +28,12 @@ class HowToPlayScreen extends StatelessWidget {
           AppSpacing.xxl,
         ),
         children: const [
+          AdventureBanner(
+            title: 'Карта путешествия',
+            icon: Icons.map_rounded,
+            imageAsset: 'assets/images/navigation/task_map_banner.png',
+          ),
+          SizedBox(height: AppSpacing.md),
           _GuideStep(
             number: 1,
             title: 'Получи монеты',

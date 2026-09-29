@@ -8,8 +8,7 @@ abstract final class FinancialGlossary {
     ),
     GlossaryTerm(
       title: 'Бюджет',
-      description:
-          'План, как распределить доступные монеты между разными задачами.',
+      description: 'План, как распределить доступные монеты между разными задачами.',
     ),
     GlossaryTerm(
       title: 'План',
@@ -17,8 +16,7 @@ abstract final class FinancialGlossary {
     ),
     GlossaryTerm(
       title: 'Факт',
-      description:
-          'Сколько монет на самом деле было потрачено или отложено за период.',
+      description: 'Сколько монет на самом деле было потрачено или отложено за период.',
     ),
     GlossaryTerm(
       title: 'Нужно',
@@ -30,8 +28,7 @@ abstract final class FinancialGlossary {
     ),
     GlossaryTerm(
       title: 'Накопления',
-      description:
-          'Монеты, которые не тратят сейчас, а откладывают для будущей цели.',
+      description: 'Монеты, которые не тратят сейчас, а откладывают для будущей цели.',
     ),
     GlossaryTerm(
       title: 'Финансовая цель',

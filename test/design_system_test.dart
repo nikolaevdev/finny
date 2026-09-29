@@ -23,7 +23,7 @@ void main() {
       ),
     );
 
-    expect(theme.scaffoldBackgroundColor, AppColors.background);
+    expect(theme.scaffoldBackgroundColor, Colors.transparent);
     expect(theme.colorScheme.primary, AppColors.purple);
     expect(theme.textTheme.displaySmall?.fontSize, 32);
     expect(theme.textTheme.headlineLarge?.fontSize, 28);
@@ -64,7 +64,10 @@ void main() {
       MaterialApp(
         theme: AppTheme.light(),
         home: const Scaffold(
-          body: FinniProgressBar(value: 1.4, semanticLabel: 'Прогресс цели'),
+          body: FinniProgressBar(
+            value: 1.4,
+            semanticLabel: 'Прогресс цели',
+          ),
         ),
       ),
     );

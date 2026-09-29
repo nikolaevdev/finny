@@ -44,16 +44,16 @@ class PeriodSummary {
   }
 
   Map<String, Object?> toJson() => {
-    'period': period,
-    'startBalance': startBalance,
-    'endBalance': endBalance,
-    'savingsAfter': savingsAfter,
-    'plan': plan.toJson(),
-    'actuals': actuals.toJson(),
-    'purchaseCount': purchaseCount,
-    'petCareAfter': petCareAfter,
-    'petMoodAfter': petMoodAfter,
-  };
+        'period': period,
+        'startBalance': startBalance,
+        'endBalance': endBalance,
+        'savingsAfter': savingsAfter,
+        'plan': plan.toJson(),
+        'actuals': actuals.toJson(),
+        'purchaseCount': purchaseCount,
+        'petCareAfter': petCareAfter,
+        'petMoodAfter': petMoodAfter,
+      };
 
   factory PeriodSummary.fromJson(Map<String, Object?> json) {
     int safeNonNegative(Object? value, {int fallback = 0}) {

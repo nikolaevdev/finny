@@ -18,7 +18,11 @@ void main() {
       demoMode: true,
       pet: const Pet(
         name: 'Финни',
-        appearance: PetAppearance(colorIndex: 2, earsIndex: 1, patternIndex: 2),
+        appearance: PetAppearance(
+          colorIndex: 2,
+          earsIndex: 1,
+          patternIndex: 2,
+        ),
       ),
       createdAt: DateTime.utc(2026, 9, 26),
     );

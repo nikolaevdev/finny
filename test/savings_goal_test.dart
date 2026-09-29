@@ -51,17 +51,16 @@ void main() {
     expect(identical(withdrawal, state), isTrue);
   });
 
-  test(
-    'withdrawal returns coins to balance and reduces current actual savings',
-    () {
-      final state = plannedState(actuals: const BudgetActuals(saved: 30));
-      final result = state.withdrawFromSavings(20);
+  test('withdrawal returns coins to balance and reduces current actual savings', () {
+    final state = plannedState(
+      actuals: const BudgetActuals(saved: 30),
+    );
+    final result = state.withdrawFromSavings(20);
 
-      expect(result.balance, 120);
-      expect(result.savings, 20);
-      expect(result.budgetActuals.saved, 10);
-    },
-  );
+    expect(result.balance, 120);
+    expect(result.savings, 20);
+    expect(result.budgetActuals.saved, 10);
+  });
 
   test('withdrawal never makes current actual savings negative', () {
     final state = plannedState(
@@ -153,4 +152,5 @@ void main() {
     expect(identical(result, state), isTrue);
     expect(result.completedGoalIds, isEmpty);
   });
+
 }

@@ -1,0 +1,407 @@
+{
+  "little_turquoise_quiet": {
+    "bbox": [
+      529,
+      517,
+      795,
+      670
+    ],
+    "source": "little_turquoise_pointed_natural.webp",
+    "image_edit_candidate": "da37d111-24f3-4a96-b690-9f55e2142c69",
+    "registration": [
+      0,
+      0,
+      0.989
+    ]
+  },
+  "little_turquoise_calm": {
+    "bbox": [
+      529,
+      517,
+      795,
+      670
+    ],
+    "source": "little_turquoise_pointed_natural.webp",
+    "image_edit_candidate": "70954d1b-68a4-4c4d-b7c9-31f214b1828f",
+    "registration": [
+      0,
+      0,
+      0.994
+    ]
+  },
+  "little_sand_quiet": {
+    "bbox": [
+      541,
+      517,
+      805,
+      665
+    ],
+    "source": "little_sand_pointed_natural.webp",
+    "image_edit_candidate": "7ff695b3-e99a-4475-9ccb-92c0c0bdc3cb",
+    "registration": [
+      0,
+      0,
+      0.995
+    ]
+  },
+  "little_sand_calm": {
+    "bbox": [
+      541,
+      517,
+      805,
+      665
+    ],
+    "source": "little_sand_pointed_natural.webp",
+    "image_edit_candidate": "e6ceaf18-fe1a-4b3b-8f64-3255bacfff5d",
+    "registration": [
+      0,
+      3,
+      0.982
+    ]
+  },
+  "little_lavender_quiet": {
+    "bbox": [
+      552,
+      522,
+      825,
+      670
+    ],
+    "source": "little_lavender_pointed_natural.webp",
+    "image_edit_candidate": "ff7f6eb4-93c6-4deb-ab9f-69627c6775d4",
+    "registration": [
+      1,
+      0,
+      0.99
+    ]
+  },
+  "little_lavender_calm": {
+    "bbox": [
+      552,
+      522,
+      825,
+      670
+    ],
+    "source": "little_lavender_pointed_natural.webp",
+    "image_edit_candidate": "71400145-89d6-48dc-9d6e-f1d579986680",
+    "registration": [
+      0,
+      0,
+      0.995
+    ]
+  },
+  "growing_turquoise_quiet": {
+    "bbox": [
+      606,
+      492,
+      885,
+      650
+    ],
+    "source": "growing_turquoise_pointed_natural.webp",
+    "image_edit_candidate": "c2b3affb-73ce-4d6e-8f14-bfd5693507be",
+    "registration": [
+      1,
+      0,
+      0.989
+    ]
+  },
+  "growing_turquoise_calm": {
+    "bbox": [
+      606,
+      492,
+      885,
+      650
+    ],
+    "source": "growing_turquoise_pointed_natural.webp",
+    "image_edit_candidate": "f990baf0-111e-4855-b837-f47490ac3e93",
+    "registration": [
+      0,
+      0,
+      0.993
+    ]
+  },
+  "growing_sand_quiet": {
+    "bbox": [
+      618,
+      487,
+      890,
+      650
+    ],
+    "source": "growing_sand_pointed_natural.webp",
+    "image_edit_candidate": "c4040e36-a395-44a7-b154-4539a6ae4278",
+    "registration": [
+      0,
+      0,
+      0.895
+    ]
+  },
+  "growing_sand_calm": {
+    "bbox": [
+      618,
+      487,
+      890,
+      650
+    ],
+    "source": "growing_sand_pointed_natural.webp",
+    "image_edit_candidate": "9940bed9-bd6a-4ffa-8374-107ba353410d",
+    "registration": [
+      0,
+      -1,
+      0.908
+    ]
+  },
+  "growing_lavender_quiet": {
+    "bbox": [
+      656,
+      492,
+      925,
+      650
+    ],
+    "source": "growing_lavender_pointed_natural.webp",
+    "image_edit_candidate": "53d7f2ca-c125-4e21-9966-6edee4d397e4",
+    "registration": [
+      0,
+      0,
+      0.986
+    ]
+  },
+  "growing_lavender_calm": {
+    "bbox": [
+      656,
+      492,
+      925,
+      650
+    ],
+    "source": "growing_lavender_pointed_natural.webp",
+    "image_edit_candidate": "4c3dcdb3-6421-42b2-8eae-59915dab2323",
+    "registration": [
+      0,
+      0,
+      0.994
+    ]
+  },
+  "confident_turquoise_quiet": {
+    "bbox": [
+      476,
+      442,
+      745,
+      585
+    ],
+    "source": "confident_turquoise_pointed_natural.webp",
+    "image_edit_candidate": "14c730f5-0ce4-43d7-ac0d-413b0300af3d",
+    "registration": [
+      0,
+      -1,
+      0.931
+    ]
+  },
+  "confident_turquoise_happy": {
+    "bbox": [
+      476,
+      442,
+      745,
+      585
+    ],
+    "source": "confident_turquoise_pointed_natural.webp",
+    "image_edit_candidate": "26d65ac8-3680-4389-9a13-8d0b6ecb16fa",
+    "registration": [
+      0,
+      0,
+      0.823
+    ]
+  },
+  "confident_sand_quiet": {
+    "bbox": [
+      488,
+      442,
+      760,
+      585
+    ],
+    "source": "confident_sand_pointed_natural.webp",
+    "image_edit_candidate": "d23f524b-ad42-442d-af66-4858dabbd6e4",
+    "registration": [
+      0,
+      -1,
+      0.921
+    ]
+  },
+  "confident_sand_happy": {
+    "bbox": [
+      488,
+      442,
+      760,
+      585
+    ],
+    "source": "confident_sand_pointed_natural.webp",
+    "image_edit_candidate": "89e9a102-4597-49e5-9d28-cd9e79cf96a5",
+    "registration": [
+      0,
+      -1,
+      0.845
+    ]
+  },
+  "confident_lavender_quiet": {
+    "bbox": [
+      501,
+      447,
+      780,
+      590
+    ],
+    "source": "confident_lavender_pointed_natural.webp",
+    "image_edit_candidate": "3f17c90a-5916-4e7a-af44-9daa008c8a5e",
+    "registration": [
+      1,
+      -2,
+      0.842
+    ]
+  },
+  "confident_lavender_happy": {
+    "bbox": [
+      501,
+      447,
+      780,
+      590
+    ],
+    "source": "confident_lavender_pointed_natural.webp",
+    "image_edit_candidate": "4c261373-9ba1-4bc9-a99f-2bf71e94460c",
+    "registration": [
+      0,
+      -1,
+      0.89
+    ]
+  },
+  "little_turquoise_delighted": {
+    "bbox": [
+      529,
+      517,
+      795,
+      670
+    ],
+    "source": "little_turquoise_pointed_natural.webp",
+    "image_edit_candidate": "e9ebcaf6-23de-4ad5-b71e-3180f21b00f8",
+    "registration": [
+      0,
+      -1,
+      0.994
+    ]
+  },
+  "little_sand_delighted": {
+    "bbox": [
+      541,
+      517,
+      805,
+      665
+    ],
+    "source": "little_sand_pointed_natural.webp",
+    "image_edit_candidate": "7c45587c-f614-420b-9d12-6ead749d60a7",
+    "registration": [
+      0,
+      0,
+      0.996
+    ]
+  },
+  "little_lavender_delighted": {
+    "bbox": [
+      552,
+      522,
+      825,
+      670
+    ],
+    "source": "little_lavender_pointed_natural.webp",
+    "image_edit_candidate": "6d009ff8-b93a-4403-8865-100025c13e2e",
+    "registration": [
+      0,
+      -1,
+      0.991
+    ]
+  },
+  "growing_turquoise_delighted": {
+    "bbox": [
+      606,
+      492,
+      885,
+      650
+    ],
+    "source": "growing_turquoise_pointed_natural.webp",
+    "image_edit_candidate": "60c87285-9fe7-4968-a9e7-073f8d88a96b",
+    "registration": [
+      -1,
+      -1,
+      0.967
+    ]
+  },
+  "growing_sand_delighted": {
+    "bbox": [
+      618,
+      487,
+      890,
+      650
+    ],
+    "source": "growing_sand_pointed_natural.webp",
+    "image_edit_candidate": "643a7819-f80b-4d18-9295-6a20d84f779d",
+    "registration": [
+      -2,
+      -1,
+      0.882
+    ]
+  },
+  "growing_lavender_delighted": {
+    "bbox": [
+      656,
+      492,
+      925,
+      650
+    ],
+    "source": "growing_lavender_pointed_natural.webp",
+    "image_edit_candidate": "134a932e-2c38-4e37-8038-f5ea73ea2c92",
+    "registration": [
+      -1,
+      -4,
+      0.963
+    ]
+  },
+  "confident_turquoise_delighted": {
+    "bbox": [
+      476,
+      442,
+      745,
+      585
+    ],
+    "source": "confident_turquoise_pointed_natural.webp",
+    "image_edit_candidate": "e0ea0ba2-9dd9-445d-b83f-db8ff2cbd79d",
+    "registration": [
+      1,
+      -2,
+      0.79
+    ]
+  },
+  "confident_sand_delighted": {
+    "bbox": [
+      488,
+      442,
+      760,
+      585
+    ],
+    "source": "confident_sand_pointed_natural.webp",
+    "image_edit_candidate": "58f9d800-4e1a-4d34-95e2-f4253ae19823",
+    "registration": [
+      0,
+      -2,
+      0.741
+    ]
+  },
+  "confident_lavender_delighted": {
+    "bbox": [
+      501,
+      447,
+      780,
+      590
+    ],
+    "source": "confident_lavender_pointed_natural.webp",
+    "image_edit_candidate": "ea03d535-e3a1-48e3-8939-a7d9c5f09fa6",
+    "registration": [
+      0,
+      -2,
+      0.804
+    ]
+  }
+}

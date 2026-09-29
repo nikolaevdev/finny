@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
+import '../../../core/audio/finni_audio.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../core/widgets/finni_button.dart';
 import '../../../core/widgets/finni_card.dart';
 import '../../../core/widgets/finni_progress_bar.dart';
+import '../../../core/widgets/adventure_banner.dart';
 import '../../game/application/game_state_provider.dart';
 import '../../game/domain/game_state.dart';
 import '../../game/domain/period_summary.dart';
@@ -56,13 +58,13 @@ class _PeriodSummaryScreenState extends ConsumerState<PeriodSummaryScreen> {
 
     setState(() => _isWorking = true);
     try {
-      final completed = await ref
-          .read(gameStateProvider.notifier)
-          .completeCurrentPeriod();
+      final completed =
+          await ref.read(gameStateProvider.notifier).completeCurrentPeriod();
+      if (completed) {
+        FinniAudio.instance.play(AudioCue.success);
+      }
       if (!completed && mounted) {
-        _showMessage(
-          'Не удалось завершить период. Проверь, что план подтверждён.',
-        );
+        _showMessage('Не удалось завершить период. Проверь, что план подтверждён.');
       }
     } catch (_) {
       if (mounted) {
@@ -78,9 +80,8 @@ class _PeriodSummaryScreenState extends ConsumerState<PeriodSummaryScreen> {
     setState(() => _isWorking = true);
 
     try {
-      final advanced = await ref
-          .read(gameStateProvider.notifier)
-          .advanceToNextPeriod();
+      final advanced =
+          await ref.read(gameStateProvider.notifier).advanceToNextPeriod();
       if (!mounted) return;
 
       if (advanced) {
@@ -110,7 +111,10 @@ class _PeriodSummaryScreenState extends ConsumerState<PeriodSummaryScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
   }
 
@@ -138,7 +142,17 @@ class _PeriodSummaryScreenState extends ConsumerState<PeriodSummaryScreen> {
                   AppSpacing.lg,
                   AppSpacing.xxl,
                 ),
-                child: game.periodStatus == PeriodStatus.completed
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const AdventureBanner(
+                      title: 'Итоги путешествия',
+                      icon: Icons.auto_graph_rounded,
+                      color: AppColors.blue,
+                      imageAsset: 'assets/images/navigation/task_map_banner.png',
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    game.periodStatus == PeriodStatus.completed
                     ? _CompletedPeriod(
                         game: game,
                         isWorking: _isWorking,
@@ -149,6 +163,8 @@ class _PeriodSummaryScreenState extends ConsumerState<PeriodSummaryScreen> {
                         isWorking: _isWorking,
                         onComplete: _completePeriod,
                       ),
+                  ],
+                ),
               ),
       ),
     );
@@ -213,8 +229,9 @@ class _CurrentPeriodPreview extends StatelessWidget {
         const SizedBox(height: AppSpacing.sm),
         Text(
           'Пока период не завершён, можно ещё совершать покупки или пополнять накопления.',
-          style: Theme.of(context).textTheme.bodyLarge
-              ?.copyWith(color: AppColors.textSecondary),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: AppColors.textSecondary,
+              ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: AppSpacing.xl),
@@ -271,8 +288,9 @@ class _CompletedPeriod extends StatelessWidget {
         const SizedBox(height: AppSpacing.sm),
         Text(
           _summaryMessage(summary),
-          style: Theme.of(context).textTheme.bodyLarge
-              ?.copyWith(color: AppColors.textSecondary),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: AppColors.textSecondary,
+              ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: AppSpacing.xl),
@@ -418,7 +436,9 @@ class _FeedbackCard extends StatelessWidget {
       summary.stayedWithinWantPlan
           ? 'Расходы на желания остались в пределах плана.'
           : 'На желания ушло больше плана. Можно отложить часть необязательных покупок.',
-      summary.reachedSavingsPlan ? 'План по накоплениям выполнен.' : 'В накопления попало меньше плана. В следующем периоде можно сначала отложить часть монет к цели.',
+      summary.reachedSavingsPlan
+          ? 'План по накоплениям выполнен.'
+          : 'В накопления попало меньше плана. В следующем периоде можно сначала отложить часть монет к цели.',
     ];
 
     return FinniCard(
@@ -426,10 +446,7 @@ class _FeedbackCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Что можно заметить',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text('Что можно заметить', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: AppSpacing.md),
           for (final message in messages) ...[
             Row(
@@ -437,10 +454,7 @@ class _FeedbackCard extends StatelessWidget {
               children: [
                 const Padding(
                   padding: EdgeInsets.only(top: 2),
-                  child: Icon(
-                    Icons.arrow_right_rounded,
-                    color: AppColors.purple,
-                  ),
+                  child: Icon(Icons.arrow_right_rounded, color: AppColors.purple),
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Expanded(child: Text(message)),
@@ -505,8 +519,8 @@ class _PetStateCard extends StatelessWidget {
     final previousHistory = game.periodHistory.length <= 1
         ? const <PeriodSummary>[]
         : game.periodHistory.sublist(0, game.periodHistory.length - 1);
-    final previousStage = PetDevelopmentProgress.fromHistory(previousHistory)
-        .stage;
+    final previousStage =
+        PetDevelopmentProgress.fromHistory(previousHistory).stage;
     final grewThisPeriod = previousStage != progress.stage;
 
     return FinniCard(
@@ -611,10 +625,7 @@ class _Metric extends StatelessWidget {
       children: [
         Icon(icon, color: AppColors.purple),
         const SizedBox(height: AppSpacing.xs),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-        ),
+        Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
         const SizedBox(height: 2),
         Text(
           label,

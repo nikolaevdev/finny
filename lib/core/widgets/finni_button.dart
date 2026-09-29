@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../../app/theme/app_radius.dart';
 import '../../app/theme/app_spacing.dart';
+import '../audio/finni_audio.dart';
+import 'finni_pressable.dart';
 
-enum FinniButtonVariant { primary, secondary, quiet }
+enum FinniButtonVariant {
+  primary,
+  secondary,
+  quiet,
+}
 
 class FinniButton extends StatelessWidget {
   const FinniButton({
@@ -22,6 +29,12 @@ class FinniButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final handlePressed = onPressed == null
+        ? null
+        : () {
+            FinniAudio.instance.play(AudioCue.tap);
+            onPressed!();
+          };
     final content = Row(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
@@ -43,22 +56,43 @@ class FinniButton extends StatelessWidget {
 
     final button = switch (variant) {
       FinniButtonVariant.primary => FilledButton(
-        onPressed: onPressed,
-        child: content,
-      ),
+          onPressed: handlePressed,
+          child: content,
+        ),
       FinniButtonVariant.secondary => OutlinedButton(
-        onPressed: onPressed,
-        child: content,
-      ),
+          onPressed: handlePressed,
+          child: content,
+        ),
       FinniButtonVariant.quiet => TextButton(
-        onPressed: onPressed,
-        child: content,
-      ),
+          onPressed: handlePressed,
+          child: content,
+        ),
     };
 
-    return ConstrainedBox(
+    final sizedButton = ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 56),
-      child: expand ? SizedBox(width: double.infinity, child: button) : button,
+      child: expand
+          ? SizedBox(
+              width: double.infinity,
+              child: button,
+            )
+          : button,
+    );
+
+    return FinniPressable(
+      enabled: onPressed != null,
+      effect: variant == FinniButtonVariant.primary
+          ? FinniPressEffect.reward
+          : FinniPressEffect.button,
+      glowColor: variant == FinniButtonVariant.primary
+          ? Theme.of(context).colorScheme.primary
+          : null,
+      borderRadius: BorderRadius.circular(
+        variant == FinniButtonVariant.quiet
+            ? AppRadius.small
+            : AppRadius.medium,
+      ),
+      child: sizedButton,
     );
   }
 }

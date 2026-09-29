@@ -14,11 +14,11 @@ class PurchaseRecord {
   final ShopCategory category;
 
   Map<String, Object?> toJson() => {
-    'itemId': itemId,
-    'title': title,
-    'price': price,
-    'category': category.name,
-  };
+        'itemId': itemId,
+        'title': title,
+        'price': price,
+        'category': category.name,
+      };
 
   factory PurchaseRecord.fromJson(Map<String, Object?> json) {
     final categoryName = json['category'];
